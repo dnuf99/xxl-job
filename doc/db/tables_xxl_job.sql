@@ -154,6 +154,7 @@ CREATE TABLE `XXL_JOB_QRTZ_TRIGGER_INFO` (
   `update_time` datetime DEFAULT NULL,
   `author` varchar(64) DEFAULT NULL COMMENT '作者',
   `alarm_email` varchar(255) DEFAULT NULL COMMENT '报警邮件',
+  `alarm_mobileno` varchar(255) DEFAULT NULL COMMENT '报警短信',
   `executor_route_strategy` varchar(50) DEFAULT NULL COMMENT '执行器路由策略',
   `executor_handler` varchar(255) DEFAULT NULL COMMENT '执行器任务handler',
   `executor_param` varchar(255) DEFAULT NULL COMMENT '执行器任务参数',
@@ -163,7 +164,7 @@ CREATE TABLE `XXL_JOB_QRTZ_TRIGGER_INFO` (
   `glue_source` text COMMENT 'GLUE源代码',
   `glue_remark` varchar(128) DEFAULT NULL COMMENT 'GLUE备注',
   `glue_updatetime` datetime DEFAULT NULL COMMENT 'GLUE更新时间',
-  `child_jobkey` varchar(255) DEFAULT NULL COMMENT '子任务Key',
+  `child_jobkey` varchar(255) DEFAULT NULL COMMENT '后续任务Key',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
