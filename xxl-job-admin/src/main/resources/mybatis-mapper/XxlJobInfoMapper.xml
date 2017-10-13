@@ -15,6 +15,7 @@
 	    
 	    <result column="author" property="author" />
 	    <result column="alarm_email" property="alarmEmail" />
+	    <result column="alarm_mobileno" property="alarmMobileno" />
 
 		<result column="executor_route_strategy" property="executorRouteStrategy" />
 		<result column="executor_handler" property="executorHandler" />
@@ -39,6 +40,7 @@
 		t.update_time,
 		t.author,
 		t.alarm_email,
+		t.alarm_mobileno,
 		t.executor_route_strategy,
 		t.executor_handler,
 		t.executor_param,
@@ -88,6 +90,7 @@
 			update_time,
 			author,
 			alarm_email,
+			alarm_mobileno,
             executor_route_strategy,
 			executor_handler,
 			executor_param,
@@ -106,6 +109,7 @@
 			NOW(),
 			#{author},
 			#{alarmEmail},
+			#{alarmMobileno},
 			#{executorRouteStrategy},
 			#{executorHandler},
 			#{executorParam},
@@ -137,6 +141,7 @@
 			update_time = NOW(),
 			author = #{author},
 			alarm_email = #{alarmEmail},
+			alarm_mobileno = #{alarmMobileno},
 			executor_route_strategy = #{executorRouteStrategy},
 			executor_handler = #{executorHandler},
 			executor_param = #{executorParam},

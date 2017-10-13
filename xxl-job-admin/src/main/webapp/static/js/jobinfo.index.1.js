@@ -369,6 +369,7 @@ $(function() {
 		$("#updateModal .form input[name='jobCron']").val( row.jobCron );
 		$("#updateModal .form input[name='author']").val( row.author );
 		$("#updateModal .form input[name='alarmEmail']").val( row.alarmEmail );
+		$("#updateModal .form input[name='alarmMobileno']").val( row.alarmMobileno );
 		$('#updateModal .form select[name=executorRouteStrategy] option[value='+ row.executorRouteStrategy +']').prop('selected', true);
 		$("#updateModal .form input[name='executorHandler']").val( row.executorHandler );
 		$("#updateModal .form input[name='executorParam']").val( row.executorParam );

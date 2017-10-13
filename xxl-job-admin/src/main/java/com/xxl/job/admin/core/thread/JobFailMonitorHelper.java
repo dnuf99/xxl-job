@@ -5,8 +5,8 @@ import com.xxl.job.admin.core.model.XxlJobInfo;
 import com.xxl.job.admin.core.model.XxlJobLog;
 import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
 import com.xxl.job.admin.core.util.MailUtil;
+import com.xxl.job.admin.core.util.MessageSenderManagerUtils;
 import com.xxl.job.core.biz.model.ReturnT;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,39 +36,33 @@ public class JobFailMonitorHelper {
 
 			@Override
 			public void run() {
+
 				// monitor
 				while (!toStop) {
 					try {
-						List<Integer> jobLogIdList = new ArrayList<Integer>();
-						int drainToNum = JobFailMonitorHelper.instance.queue.drainTo(jobLogIdList);
+						Integer jobLogId = JobFailMonitorHelper.instance.queue.take();
+						if (jobLogId != null && jobLogId > 0) {
+							XxlJobLog log = XxlJobDynamicScheduler.xxlJobLogDao.load(jobLogId);
+							if (log!=null) {
+								if (ReturnT.SUCCESS_CODE==log.getTriggerCode() && log.getHandleCode()==0) {
+									// job running, wait + again monitor
+									TimeUnit.SECONDS.sleep(10);
 
-						if (CollectionUtils.isNotEmpty(jobLogIdList)) {
-							for (Integer jobLogId : jobLogIdList) {
-								if (jobLogId==null || jobLogId==0) {
-									continue;
-								}
-								XxlJobLog log = XxlJobDynamicScheduler.xxlJobLogDao.load(jobLogId);
-								if (log == null) {
-									continue;
-								}
-								if (ReturnT.SUCCESS_CODE == log.getTriggerCode() && log.getHandleCode() == 0) {
 									JobFailMonitorHelper.monitor(jobLogId);
 									logger.info(">>>>>>>>>>> job monitor, job running, JobLogId:{}", jobLogId);
-								} else if (ReturnT.SUCCESS_CODE == log.getTriggerCode() && ReturnT.SUCCESS_CODE == log.getHandleCode()) {
+								}
+								if (ReturnT.SUCCESS_CODE==log.getTriggerCode() && ReturnT.SUCCESS_CODE==log.getHandleCode()) {
 									// job success, pass
 									logger.info(">>>>>>>>>>> job monitor, job success, JobLogId:{}", jobLogId);
-								} else if (ReturnT.FAIL_CODE == log.getTriggerCode() || ReturnT.FAIL_CODE == log.getHandleCode()) {
+								}
+
+								if (ReturnT.FAIL_CODE == log.getTriggerCode()|| ReturnT.FAIL_CODE==log.getHandleCode()) {
 									// job fail,
-									failAlarm(log);
+									sendMonitorEmail(log);
 									logger.info(">>>>>>>>>>> job monitor, job fail, JobLogId:{}", jobLogId);
-								} else {
-									JobFailMonitorHelper.monitor(jobLogId);
-									logger.info(">>>>>>>>>>> job monitor, job unknown, JobLogId:{}", jobLogId);
 								}
 							}
 						}
-
-						TimeUnit.SECONDS.sleep(10);
 					} catch (Exception e) {
 						logger.error("job monitor error:{}", e);
 					}
@@ -82,7 +76,7 @@ public class JobFailMonitorHelper {
 						XxlJobLog log = XxlJobDynamicScheduler.xxlJobLogDao.load(jobLogId);
 						if (ReturnT.FAIL_CODE == log.getTriggerCode()|| ReturnT.FAIL_CODE==log.getHandleCode()) {
 							// job fail,
-							failAlarm(log);
+							sendMonitorEmail(log);
 							logger.info(">>>>>>>>>>> job monitor last, job fail, JobLogId:{}", jobLogId);
 						}
 					}
@@ -95,13 +89,10 @@ public class JobFailMonitorHelper {
 	}
 
 	/**
-	 * fail alarm
-	 *
+	 * send monitor email
 	 * @param jobLog
 	 */
-	private void failAlarm(XxlJobLog jobLog){
-
-		// send monitor email
+	private void sendMonitorEmail(XxlJobLog jobLog){
 		XxlJobInfo info = XxlJobDynamicScheduler.xxlJobInfoDao.loadById(jobLog.getJobId());
 		if (info!=null && info.getAlarmEmail()!=null && info.getAlarmEmail().trim().length()>0) {
 
@@ -113,9 +104,17 @@ public class JobFailMonitorHelper {
 				MailUtil.sendMail(email, title, content, false, null);
 			}
 		}
+		
+		if (info!=null && info.getAlarmMobileno()!=null && info.getAlarmMobileno().trim().length()>0) {
 
-		// TODO, custom alarm strategy, such as sms
-
+			Set<String> mobilenoSet = new HashSet<String>(Arrays.asList(info.getAlarmMobileno().split(",")));
+			for (String mobleno: mobilenoSet) {
+				String title = "调度监控报警";
+				XxlJobGroup group = XxlJobDynamicScheduler.xxlJobGroupDao.load(Integer.valueOf(info.getJobGroup()));
+				String content = MessageFormat.format("任务调度失败, 执行器名称:{0}, 任务描述:{1}.", group!=null?group.getTitle():"null", info.getJobDesc());
+				MessageSenderManagerUtils.sendMessage(mobleno, "76354958", content, "1");
+			}
+		}
 	}
 
 	public void toStop(){

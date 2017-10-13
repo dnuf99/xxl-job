@@ -144,7 +144,57 @@
 			<artifactId>xxl-job-core</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		
+		<dependency>
+		  <groupId>com.cuam.crm.messageproxy</groupId>
+		  <artifactId>crm-messageinterface</artifactId>
+		  <version>1.0.0</version>
+		</dependency>	
+		<dependency>
+			<groupId>com.htffund.crm</groupId>
+			<artifactId>crm-email-service</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>dubbo</artifactId>
+			<version>2.5.5-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.alibaba.citrus.tool</groupId>
+				<artifactId>autoconfig-maven-plugin</artifactId>
+				<version>1.2</version>
+				<configuration>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>autoconfig</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

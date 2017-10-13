@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <group>
+        <property name="xxl.cts.app.name" description="应用名称" defaultValue="XXL_CTS" />
+        <property name="xxl.cts.dubbo.registry.address" description="注册中心地址" defaultValue="zookeeper://10.50.115.41:2181" /> 
+        <property name="xxl.cts.dubbo.owner" description="应用的所有者、维护者" defaultValue="wangjianyue" />
+         
+        <!-- Message -->
+        <property name="xxl.messageinterface.dubbo.interface.version" description="CRM短信微信接口版本" defaultValue="ms1.0" />
+        <property name="xxl.messageinterface.dubbo.timeout" description="CRM短信微信接口网络超时时间" defaultValue="50000" />
+        
+        
+        <property name="xxl.job.db.driverClass" description="数据库驱动" defaultValue="com.mysql.jdbc.Driver" />
+        <property name="xxl.job.db.url" description="数据库地址" defaultValue="jdbc:mysql://123.57.215.106:3306/xxl?useUnicode=true&amp;characterEncoding=UTF-8" /> 
+        <property name="xxl.job.db.user" description="数据库用户名" defaultValue="root" />
+        <property name="xxl.job.db.password" description="数据库密码" defaultValue="1aaaaa" />
+        <property name="xxl.job.accessToken" description="token" defaultValue="htf-token" />
+        
+        
+        
+     </group>
+    <script>
+        <generate template="WEB-INF/classes/spring/applicationcontext-dubbo-consumer.xml" />
+        <generate template="WEB-INF/classes/spring/applicationcontext-xxl-job-admin.xml" />
+    </script>
+</config>
