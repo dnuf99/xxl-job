@@ -30,5 +30,8 @@ public interface XxlJobService {
 	public Map<String,Object> dashboardInfo();
 
 	public ReturnT<Map<String,Object>> triggerChartDate();
+	
+	public Map<String, Object> pageMontorList(int start, int length, int jobGroup, String executorHandler, String filterTime);
+
 
 }

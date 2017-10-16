@@ -1,18 +1,16 @@
 package com.xxl.job.admin.service.impl;
 
-import com.xxl.job.admin.core.enums.ExecutorFailStrategyEnum;
-import com.xxl.job.admin.core.model.XxlJobGroup;
-import com.xxl.job.admin.core.model.XxlJobInfo;
-import com.xxl.job.admin.core.route.ExecutorRouteStrategyEnum;
-import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
-import com.xxl.job.admin.dao.XxlJobGroupDao;
-import com.xxl.job.admin.dao.XxlJobInfoDao;
-import com.xxl.job.admin.dao.XxlJobLogDao;
-import com.xxl.job.admin.dao.XxlJobLogGlueDao;
-import com.xxl.job.admin.service.XxlJobService;
-import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
-import com.xxl.job.core.glue.GlueTypeEnum;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -23,9 +21,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.text.MessageFormat;
-import java.util.*;
+import com.xxl.job.admin.core.enums.ExecutorFailStrategyEnum;
+import com.xxl.job.admin.core.model.XxlJobGroup;
+import com.xxl.job.admin.core.model.XxlJobInfo;
+import com.xxl.job.admin.core.model.XxlJobMontorInfo;
+import com.xxl.job.admin.core.route.ExecutorRouteStrategyEnum;
+import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
+import com.xxl.job.admin.dao.XxlJobGroupDao;
+import com.xxl.job.admin.dao.XxlJobInfoDao;
+import com.xxl.job.admin.dao.XxlJobLogDao;
+import com.xxl.job.admin.dao.XxlJobLogGlueDao;
+import com.xxl.job.admin.dao.XxlJobMontorDao;
+import com.xxl.job.admin.service.XxlJobService;
+import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
+import com.xxl.job.core.glue.GlueTypeEnum;
 
 /**
  * core job action for xxl-job
@@ -43,6 +53,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 	public XxlJobLogDao xxlJobLogDao;
 	@Resource
 	private XxlJobLogGlueDao xxlJobLogGlueDao;
+	
+	@Resource
+	private XxlJobMontorDao xxlJobMontorDao;
 	
 	@Override
 	public Map<String, Object> pageList(int start, int length, int jobGroup, String executorHandler, String filterTime) {
@@ -63,6 +76,33 @@ public class XxlJobServiceImpl implements XxlJobService {
 	    maps.put("recordsTotal", list_count);		// 总记录数
 	    maps.put("recordsFiltered", list_count);	// 过滤后的总记录数
 	    maps.put("data", list);  					// 分页列表
+		return maps;
+	}
+	
+	@Override
+	public Map<String, Object> pageMontorList(int start, int length, int jobGroup, String executorHandler, String filterTime) {
+
+		// page list
+		List<XxlJobInfo> list = xxlJobInfoDao.pageList(start, length, jobGroup, executorHandler);
+		int list_count = xxlJobInfoDao.pageListCount(start, length, jobGroup, executorHandler);
+		
+		// fill jobMontor
+		List<XxlJobMontorInfo> montorList = new ArrayList<XxlJobMontorInfo>();
+		if (list!=null && list.size()>0) {
+			for (XxlJobInfo jobInfo : list) {				 
+				XxlJobMontorInfo montor = xxlJobMontorDao.getMontorData(jobInfo.getJobGroup(), jobInfo.getId());
+				if(montor != null) {
+					montor.setJobDesc(jobInfo.getJobDesc());
+					montorList.add(montor);
+				}
+			}
+		}
+		
+		// package result
+		Map<String, Object> maps = new HashMap<String, Object>();
+	    maps.put("recordsTotal", list_count);		// 总记录数
+	    maps.put("recordsFiltered", list_count);	// 过滤后的总记录数
+	    maps.put("data", montorList);  					// 分页列表
 		return maps;
 	}
 
