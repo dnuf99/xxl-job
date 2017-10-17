@@ -11,6 +11,7 @@
 
 		<result column="dailyFailCnt" property="dailyFailCnt" />
 		<result column="dailySuccessCnt" property="dailySuccessCnt" />
+		<result column="lastCallTime" property="lastCallTime" />
 		<result column="dailyAvgCallTime" property="dailyAvgCallTime" />
 	    <result column="dailyMaxCallTime" property="dailyMaxCallTime" />
 	    
@@ -26,7 +27,7 @@
 	
 	<select id="getMontorData" resultMap="XxlJobMontor">
 	select monthInfo.job_group, monthInfo.job_id, dayInfo.dailyFailCnt,dayInfo.dailySuccessCnt,dayInfo.dailyAvgCallTime, dayInfo.dailyMaxCallTime,
-		   monthInfo.monthFailCnt, monthInfo.monthSuccessCnt, monthInfo.monthAvgCallTime, monthInfo.monthMaxCallTime
+		   monthInfo.monthFailCnt, monthInfo.monthSuccessCnt, monthInfo.monthAvgCallTime, monthInfo.monthMaxCallTime, lastCall.lastCallTime
 		from 
 		(
 		select job_group, job_id, 
@@ -53,6 +54,16 @@
 		from XXL_JOB_QRTZ_TRIGGER_LOG where job_group = #{jobGroup} and job_id = #{jobId} and to_days(trigger_time) = to_days(now())
 		
 		) dayInfo
+		
+		on monthInfo.job_group = dayInfo.job_group
+		  and monthInfo.job_id = dayInfo.job_id		  
+		  
+		left join (
+		select job_group, job_id,
+		(case when handle_code = 200 then UNIX_TIMESTAMP(handle_time) * 1000-UNIX_TIMESTAMP(trigger_time) * 1000 else 0 end) as lastCallTime
+		from XXL_JOB_QRTZ_TRIGGER_LOG
+		  where job_group = #{jobGroup} and job_id = #{jobId} order by handle_time desc limit 1
+		) lastCall
 		
 		on monthInfo.job_group = dayInfo.job_group
 		  and monthInfo.job_id = dayInfo.job_id		  

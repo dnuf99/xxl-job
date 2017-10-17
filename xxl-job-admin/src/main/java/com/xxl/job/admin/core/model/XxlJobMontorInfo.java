@@ -14,6 +14,7 @@ public class XxlJobMontorInfo {
 
 	private int dailyFailCnt;	    // 日失败次数
 	private int dailySuccessCnt;	// 日成功次数
+	private int lastCallTime;        // 最后一次调用时间（MS）
 	private int dailyAvgCallTime;	// 日平均调用时间（MS）
 	private int dailyMaxCallTime;	// 日最长调用时间（MS）
 	
@@ -50,6 +51,13 @@ public class XxlJobMontorInfo {
 	}
 	public void setDailySuccessCnt(int dailySuccessCnt) {
 		this.dailySuccessCnt = dailySuccessCnt;
+	}
+	
+	public int getLastCallTime() {
+		return lastCallTime;
+	}
+	public void setLastCallTime(int lastCallTime) {
+		this.lastCallTime = lastCallTime;
 	}
 	public int getDailyAvgCallTime() {
 		return dailyAvgCallTime;

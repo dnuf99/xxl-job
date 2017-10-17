@@ -31,6 +31,7 @@ $(function() {
 	                { "data": 'jobDesc', "visible" : true,"width":'10%'},
 	                { "data": 'dailyFailCnt', "visible" : true,"width":'10%'},
 	                { "data": 'dailySuccessCnt', "visible" : true,"width":'10%'},
+	                { "data": 'lastCallTime', "visible" : true,"width":'10%'},
 	                { "data": 'dailyAvgCallTime', "visible" : true,"width":'10%'},
 	                { "data": 'dailyMaxCallTime', "visible" : true,"width":'10%'},
 	                { "data": 'monthFailCnt', "visible" : true,"width":'10%'},

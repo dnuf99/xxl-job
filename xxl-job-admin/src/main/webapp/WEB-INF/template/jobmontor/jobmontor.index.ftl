@@ -47,6 +47,7 @@
 					                  	<th name="jobDesc" >描述</th>
                                         <th name="dailyFailCnt" >日失败调用数</th>
 					                  	<th name="dailySuccessCnt" >日成功调用数</th>
+					                  	<th name="lastCallTime" >最后一次调用时间（MS）</th>
                                         <th name="dailyAvgCallTime" >日平均调用时间（MS）</th>
 					                  	<th name="dailyMaxCallTime" >日最长调用时间（MS）</th>
 					                  	<th name="monthFailCnt" >月失败调用数</th>
