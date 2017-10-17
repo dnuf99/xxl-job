@@ -26,5 +26,7 @@ public interface XxlJobInfoDao {
 	public List<XxlJobInfo> getJobsByGroup(@Param("jobGroup") int jobGroup);
 
 	public int findAllCount();
+	
+	public List<XxlJobInfo> findDepenceJob(@Param("depenceKey") String depenceKey);
 
 }

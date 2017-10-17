@@ -2,14 +2,18 @@ package com.xxl.job.admin.service.impl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+import javax.swing.event.ListSelectionEvent;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +49,8 @@ import com.xxl.job.core.glue.GlueTypeEnum;
 public class XxlJobServiceImpl implements XxlJobService {
 	private static Logger logger = LoggerFactory.getLogger(XxlJobServiceImpl.class);
 
+	private final static String NO_SCHEEULER_CRON = "0 15 10 15 * ? 2099";
+	
 	@Resource
 	private XxlJobGroupDao xxlJobGroupDao;
 	@Resource
@@ -114,7 +120,23 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, "请选择“执行器”");
 		}
 		if (!CronExpression.isValidExpression(jobInfo.getJobCron())) {
-			return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入格式正确的“Cron”");
+			
+			if (StringUtils.isNotBlank(jobInfo.getJobCron())) {
+				String[] childJobKeys = jobInfo.getJobCron().split(",");
+				for (String childJobKeyItem: childJobKeys) {
+					String[] childJobKeyArr = childJobKeyItem.split("_");
+					if (childJobKeyArr.length!=2) {
+						return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入格式正确的“Cron”或者前置任务ID");					
+					}
+					XxlJobInfo childJobInfo = xxlJobInfoDao.loadById(Integer.valueOf(childJobKeyArr[1]));
+					if (childJobInfo==null) {
+						return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("前置任务Key({0})无效", childJobKeyItem));
+					}
+				}
+			}else {
+				return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入格式正确的“Cron”或者前置任务ID");					
+			}
+			
 		}
 		if (StringUtils.isBlank(jobInfo.getJobDesc())) {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入“任务描述”");
@@ -149,46 +171,86 @@ public class XxlJobServiceImpl implements XxlJobService {
 			for (String childJobKeyItem: childJobKeys) {
 				String[] childJobKeyArr = childJobKeyItem.split("_");
 				if (childJobKeyArr.length!=2) {
-					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("子任务Key({0})格式错误", childJobKeyItem));
+					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("后续任务Key({0})格式错误", childJobKeyItem));
 				}
 				XxlJobInfo childJobInfo = xxlJobInfoDao.loadById(Integer.valueOf(childJobKeyArr[1]));
 				if (childJobInfo==null) {
-					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("子任务Key({0})无效", childJobKeyItem));
+					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("后续任务Key({0})无效", childJobKeyItem));
 				}
 			}
 		}
 
 		// add in db
-		xxlJobInfoDao.save(jobInfo);
+		persist(jobInfo);
+		
 		if (jobInfo.getId() < 1) {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, "新增任务失败");
 		}
 
-		// add in quartz
-        String qz_group = String.valueOf(jobInfo.getJobGroup());
+		// 若为前置任务驱动， 则不需要定时调度，为了支持单独发起，需要设置一个不会定时发起的cron表达式
+		//add in quartz
+		String qz_group = String.valueOf(jobInfo.getJobGroup());
         String qz_name = String.valueOf(jobInfo.getId());
-        try {
-            XxlJobDynamicScheduler.addJob(qz_name, qz_group, jobInfo.getJobCron());
-            //XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);
-            return ReturnT.SUCCESS;
-        } catch (SchedulerException e) {
-            logger.error(e.getMessage(), e);
-            try {
-                xxlJobInfoDao.delete(jobInfo.getId());
-                XxlJobDynamicScheduler.removeJob(qz_name, qz_group);
-            } catch (SchedulerException e1) {
-                logger.error(e.getMessage(), e1);
-            }
-            return new ReturnT<String>(ReturnT.FAIL_CODE, "新增任务失败:" + e.getMessage());
-        }
+		        
+	    return addDynamicScheduler(qz_group, qz_name, jobInfo.getJobCron());
 	}
+
+	private void persist(XxlJobInfo jobInfo) {
+		xxlJobInfoDao.save(jobInfo);
+		dealForDepenceJob(jobInfo, false);	
+	}
+
+	private ReturnT<String> addDynamicScheduler(String qz_group, String qz_name, String cron) {
+		try {
+			if(isVaildJobCode(cron)) {	
+				XxlJobDynamicScheduler.addJob(qz_name, qz_group, NO_SCHEEULER_CRON);
+				XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);				
+			}
+			else {
+				XxlJobDynamicScheduler.addJob(qz_name, qz_group, cron);
+			}
+		    
+		    return ReturnT.SUCCESS;
+		} catch (SchedulerException e) {
+		    logger.error(e.getMessage(), e);
+		    try {
+		        xxlJobInfoDao.delete(Integer.valueOf(qz_name));
+		        XxlJobDynamicScheduler.removeJob(qz_name, qz_group);
+		    } catch (SchedulerException e1) {
+		        logger.error(e.getMessage(), e1);
+		    }
+		    return new ReturnT<String>(ReturnT.FAIL_CODE, "新增任务失败:" + e.getMessage());
+		}
+	}
+
+	private boolean isVaildJobCode(String jobCron) {
+		Pattern pattern =Pattern.compile("^\\d+_\\d+$");
+		Matcher matcher = pattern.matcher(jobCron);
+		return matcher.matches();
+	}
+	
+	 
 
 	@Override
 	public ReturnT<String> reschedule(XxlJobInfo jobInfo) {
 
 		// valid
 		if (!CronExpression.isValidExpression(jobInfo.getJobCron())) {
-			return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入格式正确的“Cron”");
+			if (StringUtils.isNotBlank(jobInfo.getJobCron())) {
+				String[] childJobKeys = jobInfo.getJobCron().split(",");
+				for (String childJobKeyItem: childJobKeys) {
+					String[] childJobKeyArr = childJobKeyItem.split("_");
+					if (childJobKeyArr.length!=2) {
+						return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入格式正确的“Cron”或者前置任务ID");					
+					}
+					XxlJobInfo childJobInfo = xxlJobInfoDao.loadById(Integer.valueOf(childJobKeyArr[1]));
+					if (childJobInfo==null) {
+						return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("前置任务Key({0})无效", childJobKeyItem));
+					}
+				}
+			}else {
+				return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入格式正确的“Cron”或者前置任务ID");					
+			}
 		}
 		if (StringUtils.isBlank(jobInfo.getJobDesc())) {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, "请输入“任务描述”");
@@ -212,11 +274,11 @@ public class XxlJobServiceImpl implements XxlJobService {
 			for (String childJobKeyItem: childJobKeys) {
 				String[] childJobKeyArr = childJobKeyItem.split("_");
 				if (childJobKeyArr.length!=2) {
-					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("子任务Key({0})格式错误", childJobKeyItem));
+					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("后续任务Key({0})格式错误", childJobKeyItem));
 				}
                 XxlJobInfo childJobInfo = xxlJobInfoDao.loadById(Integer.valueOf(childJobKeyArr[1]));
 				if (childJobInfo==null) {
-					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("子任务Key({0})无效", childJobKeyItem));
+					return new ReturnT<String>(ReturnT.FAIL_CODE, MessageFormat.format("后续任务Key({0})无效", childJobKeyItem));
 				}
 			}
 		}
@@ -227,7 +289,14 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, "参数异常");
 		}
 		//String old_cron = exists_jobInfo.getJobCron();
-
+		boolean isNeedUpdateDepence = true; 
+		if(StringUtils.isEmpty(exists_jobInfo.getJobCron()) && StringUtils.isEmpty(jobInfo.getJobCron())) {
+			isNeedUpdateDepence = false;
+		}
+		else if(exists_jobInfo.getJobCron().trim().equals(jobInfo.getJobCron().trim())) {
+			isNeedUpdateDepence = false;
+		}
+		
 		exists_jobInfo.setJobCron(jobInfo.getJobCron());
 		exists_jobInfo.setJobDesc(jobInfo.getJobDesc());
 		exists_jobInfo.setAuthor(jobInfo.getAuthor());
@@ -238,18 +307,90 @@ public class XxlJobServiceImpl implements XxlJobService {
 		exists_jobInfo.setExecutorBlockStrategy(jobInfo.getExecutorBlockStrategy());
 		exists_jobInfo.setExecutorFailStrategy(jobInfo.getExecutorFailStrategy());
 		exists_jobInfo.setChildJobKey(jobInfo.getChildJobKey());
-        xxlJobInfoDao.update(exists_jobInfo);
+		persistUpdate(exists_jobInfo, isNeedUpdateDepence);
+		
 
 		// fresh quartz
 		String qz_group = String.valueOf(exists_jobInfo.getJobGroup());
 		String qz_name = String.valueOf(exists_jobInfo.getId());
-        try {
-            boolean ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, exists_jobInfo.getJobCron());
-            return ret?ReturnT.SUCCESS:ReturnT.FAIL;
-        } catch (SchedulerException e) {
-            logger.error(e.getMessage(), e);
-        }
+		return reScheduler(qz_group, qz_name, exists_jobInfo.getJobCron());
+	}
+	
+	private void persistUpdate(XxlJobInfo jobInfo, boolean isNeedUpdateDepence) {
+		xxlJobInfoDao.update(jobInfo);
+		dealForDepenceJob(jobInfo, isNeedUpdateDepence);			
+	}
+	
+	private void dealForDepenceJob(XxlJobInfo jobInfo, boolean isNeedUpdateDepence) {
+		if(isNeedUpdateDepence) {
+			clearOldDepence(jobInfo);
+		}
+		addNewDepence(jobInfo);
+		
+	}
 
+	private void addNewDepence(XxlJobInfo jobInfo) {
+		if(isVaildJobCode(jobInfo.getJobCron())) {
+			String depenceKey = jobInfo.getJobGroup() + "_" + jobInfo.getId();
+			String[] childJobKeyArr = jobInfo.getJobCron().split("_");
+			XxlJobInfo dependenceJob = xxlJobInfoDao.loadById(Integer.valueOf(childJobKeyArr[1]));
+			String childJobs = dependenceJob.getChildJobKey();
+			if(childJobs != null && StringUtils.isNotEmpty(childJobs.trim())) {
+				childJobs += "," + depenceKey;
+			}
+			else {
+				childJobs = depenceKey;
+			}
+			dependenceJob.setChildJobKey(childJobs);
+			xxlJobInfoDao.update(dependenceJob);
+		}
+		
+	}
+
+	private void clearOldDepence(XxlJobInfo jobInfo) {
+		String depenceKey = jobInfo.getJobGroup() + "_" + jobInfo.getId();
+		String likeKey = "%"+depenceKey+"%";
+		List<XxlJobInfo> depenceJobs = xxlJobInfoDao.findDepenceJob(likeKey);
+		for(XxlJobInfo depenceJob : depenceJobs) {
+			Set<String> jobIds = new HashSet<String>();
+			
+			String[] childJobKeys = depenceJob.getChildJobKey().split(",");		
+			for(String jobId : childJobKeys) {
+				jobIds.add(jobId.trim());
+			}
+						
+			jobIds.remove(depenceKey);
+			
+			StringBuilder sb = new StringBuilder();
+			for(String newJobId : jobIds) {
+				sb.append(newJobId).append(",");
+			}
+			int index = sb.lastIndexOf(",");
+			if(index > 0) {
+				depenceJob.setChildJobKey(sb.substring(0, index));				
+			}else {
+				depenceJob.setChildJobKey("");
+			}
+			
+			xxlJobInfoDao.update(depenceJob);
+		}
+	}
+
+	private ReturnT<String> reScheduler(String qz_group, String qz_name, String cron) {
+		try {
+			boolean ret = false;
+			if(isVaildJobCode(cron)) {	
+				ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, NO_SCHEEULER_CRON);
+				XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);				
+			}
+			else {
+				ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, cron);
+			}
+		    
+		    return ret?ReturnT.SUCCESS:ReturnT.FAIL;
+		} catch (SchedulerException e) {
+			logger.error(e.getMessage(), e);
+		}
 		return ReturnT.FAIL;
 	}
 
@@ -261,6 +402,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 		try {
 			XxlJobDynamicScheduler.removeJob(name, group);
+			clearOldDepence(xxlJobInfo);
 			xxlJobInfoDao.delete(id);
 			xxlJobLogDao.delete(id);
 			xxlJobLogGlueDao.deleteByJobId(id);

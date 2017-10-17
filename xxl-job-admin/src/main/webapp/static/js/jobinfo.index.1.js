@@ -272,7 +272,7 @@ $(function() {
             	required :"请输入“描述”."
             },
             jobCron : {
-            	required :"请输入“Cron”."
+            	required :"请输入“Cron”或者“前置任务”."
             },
             author : {
             	required : "请输入“负责人”."
@@ -405,7 +405,7 @@ $(function() {
 				required :"请输入“描述”."
 			},
 			jobCron : {
-				required :"请输入“Cron”."
+				required :"请输入“Cron”或者“前置任务”."
 			},
 			author : {
 				required : "请输入“负责人”."

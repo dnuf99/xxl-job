@@ -72,7 +72,7 @@
 					                  	<th name="jobDesc" >描述</th>
                                         <th name="glueType" >运行模式</th>
 					                  	<th name="executorParam" >任务参数</th>
-                                        <th name="jobCron" >Cron</th>
+                                        <th name="jobCron" >触发条件</th>
 					                  	<th name="addTime" >新增时间</th>
 					                  	<th name="updateTime" >更新时间</th>
 					                  	<th name="author" >负责人</th>
@@ -127,8 +127,8 @@
 							</#list>
                             </select>
                         </div>
-                        <label for="lastname" class="col-sm-2 control-label">Cron<font color="red">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="请输入“Cron”" maxlength="20" ></div>
+                        <label for="lastname" class="col-sm-2 control-label">触发条件<font color="red">*</font></label>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="请输入“Cron”或者“前置任务”" maxlength="20" ></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">运行模式<font color="red">*</font></label>
@@ -146,7 +146,7 @@
                         <label for="firstname" class="col-sm-2 control-label">执行参数<font color="black">*</font></label>
                         <div class="col-sm-4"><input type="text" class="form-control" name="executorParam" placeholder="请输入“执行参数”" maxlength="100" ></div>
                         <label for="lastname" class="col-sm-2 control-label">后续任务Key<font color="black">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入子任务的任务Key,如存在多个逗号分隔" maxlength="100" ></div>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入子任务的任务Key,如存在多个逗号分隔" maxlength="100" disabled></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">阻塞处理策略<font color="red">*</font></label>
@@ -289,8 +289,8 @@ process.exit(0)
 							</#list>
                             </select>
                         </div>
-                        <label for="lastname" class="col-sm-2 control-label">Cron<font color="red">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="请输入“Cron”" maxlength="20" ></div>
+                        <label for="lastname" class="col-sm-2 control-label">触发条件<font color="red">*</font></label>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="请输入“Cron”或者“前置任务”" maxlength="20" ></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">运行模式<font color="red">*</font></label>
@@ -308,7 +308,7 @@ process.exit(0)
                         <label for="firstname" class="col-sm-2 control-label">执行参数<font color="black">*</font></label>
                         <div class="col-sm-4"><input type="text" class="form-control" name="executorParam" placeholder="请输入“执行参数”" maxlength="100" ></div>
                         <label for="lastname" class="col-sm-2 control-label">后续任务Key<font color="black">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入子任务的任务Key,如存在多个逗号分隔" maxlength="100" ></div>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入子任务的任务Key,如存在多个逗号分隔" maxlength="100" disabled></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">阻塞处理策略<font color="red">*</font></label>
