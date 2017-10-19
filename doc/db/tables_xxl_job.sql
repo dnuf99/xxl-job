@@ -217,5 +217,22 @@ CREATE TABLE `XXL_JOB_QRTZ_TRIGGER_GROUP` (
 
 INSERT INTO `XXL_JOB_QRTZ_TRIGGER_GROUP` ( `app_name`, `title`, `order`, `address_type`, `address_list`) values ( 'xxl-job-executor-sample', '示例执行器', '1', '0', null);
 
+create table  USER_INFO ( 
+user_id       int(11) not null AUTO_INCREMENT comment '自增长主键', 
+username       varchar(45) not null comment '用户名', 
+password       varchar(45) comment '密码', 
+fullname       varchar(45) comment  '真实用户名', 
+mobile       varchar(45) comment  '手机号', 
+email       varchar(45) comment  '邮箱', 
+status       char(1) comment  '状态 Y:有效 C:无效', 
+last_login_ip       varchar(45) comment  '最近一次登录IP', 
+last_login_time       datetime comment  '最近一次登录时间',
+PRIMARY KEY (user_id),
+CONSTRAINT username_UNIQUE UNIQUE (username)
+)
+ ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ 
+ INSERT INTO USER_INFO (username, password, fullname, mobile, email, status, last_login_ip, last_login_time) VALUES ('admin', 'dffd94717afc3481bada4d16c70a6a1b', 'wangjy', '18918521111', 'test@htffund.com', 'Y', null, null);
+
 commit;
 
