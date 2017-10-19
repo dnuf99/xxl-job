@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xxl.job.admin.dao.UserInfoDao">
+
+    <sql id="base_colums">
+        T1.user_id as userId,
+        T1.username as username,
+        T1.password as password,
+        T1.fullname as fullname,
+        T1.mobile as mobile,
+        T1.email as email,
+        T1.status as status,
+        T1.last_login_ip as lastLoginIp,
+        T1.last_login_time as lastLoginTime
+    </sql>
+
+    <select id="getUserInfoByPrimkey" parameterType="Integer" resultType="com.xxl.job.admin.core.model.UserInfo">
+        SELECT <include refid="base_colums"/>
+         from USER_INFO T1 
+           where 1 = 1 
+             and T1.user_id = #{userId,jdbcType=INTEGER}
+
+    </select>
+
+    <select id="getUserInfoByName" parameterType="String" resultType="com.xxl.job.admin.core.model.UserInfo">
+        SELECT <include refid="base_colums"/>
+         from USER_INFO T1 
+           where 1 = 1
+             and T1.username = #{username,jdbcType=VARCHAR}
+             and status = 'Y'
+
+    </select>
+
+    <insert id="insertUserInfo" parameterType="com.xxl.job.admin.core.model.UserInfo">
+      insert into USER_INFO(username,password,fullname,mobile,email,status,last_login_ip,last_login_time)
+      values (#{username,jdbcType=VARCHAR},#{password,jdbcType=VARCHAR},#{fullname,jdbcType=VARCHAR},#{mobile,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{status,jdbcType=CHAR},#{lastLoginIp,jdbcType=VARCHAR},#{lastLoginTime})
+    </insert>
+
+    <update id="updateUserInfo" parameterType="com.xxl.job.admin.core.model.UserInfo">
+      update USER_INFO T1 set 
+           T1.user_id = T1.user_id
+         <if test="username != null">
+           ,T1.username = #{username,jdbcType=VARCHAR}
+         </if>
+         <if test="password != null">
+           ,T1.password = #{password,jdbcType=VARCHAR}
+         </if>
+         <if test="fullname != null">
+           ,T1.fullname = #{fullname,jdbcType=VARCHAR}
+         </if>
+         <if test="mobile != null">
+           ,T1.mobile = #{mobile,jdbcType=VARCHAR}
+         </if>
+         <if test="email != null">
+           ,T1.email = #{email,jdbcType=VARCHAR}
+         </if>
+         <if test="status != null">
+           ,T1.status = #{status,jdbcType=CHAR}
+         </if>
+         <if test="lastLoginIp != null">
+           ,T1.last_login_ip = #{lastLoginIp,jdbcType=VARCHAR}
+         </if>
+         <if test="lastLoginTime != null">
+           ,T1.last_login_time = #{lastLoginTime}
+         </if>
+           where T1.username = #{username,jdbcType=VARCHAR}
+
+
+    </update>
+</mapper>

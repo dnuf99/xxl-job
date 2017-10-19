@@ -1,10 +1,12 @@
 package com.xxl.job.admin.controller;
 
-import com.xxl.job.admin.controller.annotation.PermessionLimit;
-import com.xxl.job.admin.controller.interceptor.PermissionInterceptor;
-import com.xxl.job.admin.core.util.PropertiesUtil;
-import com.xxl.job.admin.service.XxlJobService;
-import com.xxl.job.core.biz.model.ReturnT;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,10 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import com.xxl.job.admin.controller.annotation.PermessionLimit;
+import com.xxl.job.admin.controller.interceptor.PermissionInterceptor;
+import com.xxl.job.admin.core.model.UserInfo;
+import com.xxl.job.admin.core.util.CookieUtil;
+import com.xxl.job.admin.core.util.PropertiesUtil;
+import com.xxl.job.admin.dao.UserInfoDao;
+import com.xxl.job.admin.service.XxlJobService;
+import com.xxl.job.core.biz.model.ReturnT;
 
 /**
  * index controller
@@ -26,6 +32,10 @@ public class IndexController {
 
 	@Resource
 	private XxlJobService xxlJobService;
+	
+	@Resource
+	private UserInfoDao userInfoDao;
+	
 
 	@RequestMapping("/")
 	public String index(Model model) {
@@ -46,7 +56,7 @@ public class IndexController {
 	@RequestMapping("/toLogin")
 	@PermessionLimit(limit=false)
 	public String toLogin(Model model, HttpServletRequest request) {
-		if (PermissionInterceptor.ifLogin(request)) {
+		if (isLogin(request)) {
 			return "redirect:/";
 		}
 		return "login";
@@ -56,40 +66,102 @@ public class IndexController {
 	@ResponseBody
 	@PermessionLimit(limit=false)
 	public ReturnT<String> loginDo(HttpServletRequest request, HttpServletResponse response, String userName, String password, String ifRemember){
-		if (!PermissionInterceptor.ifLogin(request)) {
-			if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password)
-					&& PropertiesUtil.getString("xxl.job.login.username").equals(userName)
-					&& PropertiesUtil.getString("xxl.job.login.password").equals(password)) {
-				boolean ifRem = false;
-				if (StringUtils.isNotBlank(ifRemember) && "on".equals(ifRemember)) {
-					ifRem = true;
+		if (!isLogin(request)) {
+			if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password)) {
+				UserInfo userInfo = userInfoDao.getUserInfoByName(userName);
+				if(userInfo != null) {
+					String key = password + "_" + userName;
+					String token = DigestUtils.md5Hex(key);
+					if(StringUtils.isNotEmpty(token) && token.equals(userInfo.getPassword())) {
+						boolean ifRem = false;
+						if (StringUtils.isNotBlank(ifRemember) && "on".equals(ifRemember)) {
+							ifRem = true;
+						}
+						PermissionInterceptor.login(response, ifRem, userName, token);
+						return ReturnT.SUCCESS;
+					}
 				}
-				PermissionInterceptor.login(response, ifRem);
-			} else {
-				return new ReturnT<String>(500, "账号或密码错误");
-			}
+				
+			} 						
+		}else {
+			return ReturnT.SUCCESS;
 		}
-		return ReturnT.SUCCESS;
+		
+		return new ReturnT<String>(500, "账号或密码错误");
+		
 	}
 	
 	@RequestMapping(value="logout", method=RequestMethod.POST)
 	@ResponseBody
 	@PermessionLimit(limit=false)
 	public ReturnT<String> logout(HttpServletRequest request, HttpServletResponse response){
-		if (PermissionInterceptor.ifLogin(request)) {
+		if (isLogin(request)) {
 			PermissionInterceptor.logout(request, response);
 		}
 		return ReturnT.SUCCESS;
 	}
 	
-	@RequestMapping("/help")
-	public String help() {
+	private boolean isLogin(HttpServletRequest request) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		String indentityInfo = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_IDENTITY_KEY);
+		if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(indentityInfo)) {
+			return false;
+		}
+		UserInfo userInfo = userInfoDao.getUserInfoByName(userName);
+		if(userInfo != null && indentityInfo.equals(userInfo.getPassword())) {
+			return true;
+		}
+		return false;
+	}
+
+	@RequestMapping("/userManger")
+	public String userManger() {
 
 		/*if (!PermissionInterceptor.ifLogin(request)) {
 			return "redirect:/toLogin";
 		}*/
 
-		return "help";
+		return "userManger";
+	}
+	
+
+	@RequestMapping(value="updatePwd", method=RequestMethod.POST)
+	@ResponseBody
+	@PermessionLimit(limit=false)
+	public ReturnT<String> updatePwd(HttpServletRequest request, HttpServletResponse response, String oldPassword, String newPassword) {
+		String errorMsg = "修改密码失败！";
+		if (isLogin(request)) {
+			if (StringUtils.isNotBlank(oldPassword) && StringUtils.isNotBlank(newPassword)) {
+				String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+				UserInfo userInfo = userInfoDao.getUserInfoByName(userName);
+				if(userInfo != null) {
+					String key = oldPassword + "_" + userName;
+					String token = DigestUtils.md5Hex(key);
+					if(StringUtils.isNotEmpty(token) && token.equals(userInfo.getPassword())) {
+						if(StringUtils.isNotEmpty(newPassword)) {
+							String newKey = newPassword + "_" + userName;
+							String newToken = DigestUtils.md5Hex(newKey);
+							userInfo.setPassword(newToken);
+							userInfoDao.updateUserInfo(userInfo);
+							PermissionInterceptor.logout(request, response);
+							return ReturnT.SUCCESS;
+						}
+						else {
+							errorMsg = "新密码设置失败，新密码为空";
+						}
+					}
+					else {
+						errorMsg = "新密码设置失败，旧密码错误";
+					}
+				}
+				
+			} 						
+		}else {
+			errorMsg = "账号未登录，无法修改密码";
+		}
+		
+		return new ReturnT<String>(500, errorMsg);
+
 	}
 	
 }

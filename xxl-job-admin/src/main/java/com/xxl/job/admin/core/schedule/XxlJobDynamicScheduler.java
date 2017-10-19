@@ -372,6 +372,32 @@ public final class XxlJobDynamicScheduler implements ApplicationContextAware {
         }
         return result;
     }
+    
+    
+    /**
+     * queryJobStatus
+     *
+     * @param jobName
+     * @param jobGroup
+     * @return
+     * @throws SchedulerException
+     */
+    public static TriggerState queryJobStatus(String group, String name){
+        TriggerKey triggerKey = TriggerKey.triggerKey(name, group);
+
+        try {
+			TriggerState triggerState = scheduler.getTriggerState(triggerKey);			
+			
+			if (triggerState!=null) {
+				return triggerState;
+			}
+			
+		} catch (SchedulerException e) {
+			logger.error(e.getMessage(), e);
+		}
+        
+        return TriggerState.NONE;
+    }
 
     /**
      * finaAllJobList

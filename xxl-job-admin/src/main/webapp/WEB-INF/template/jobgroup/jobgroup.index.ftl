@@ -169,8 +169,6 @@
         </div>
     </div>
 	
-	<!-- footer -->
-	<@netCommon.commonFooter />
 </div>
 
 <@netCommon.commonScript />

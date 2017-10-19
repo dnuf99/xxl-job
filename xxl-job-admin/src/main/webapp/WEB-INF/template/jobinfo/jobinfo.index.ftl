@@ -78,7 +78,6 @@
 					                  	<th name="author" >负责人</th>
 					                  	<th name="alarmEmail" >报警邮件</th>
 					                  	<th name="alarmMobileno" >报警短信</th>
-					                  	<th name="glueType" >运行模式</th>
 					                  	<th name="jobStatus" >状态</th>
 					                  	<th>操作</th>
 					                </tr>
@@ -93,8 +92,7 @@
 	    </section>
 	</div>
 	
-	<!-- footer -->
-	<@netCommon.commonFooter />
+
 </div>
 
 <!-- job新增.模态框 -->

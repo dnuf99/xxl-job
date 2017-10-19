@@ -30,8 +30,8 @@
 
             <!-- 任务信息 -->
             <div class="row">
-
-                <#-- 任务信息 -->
+				
+				<#-- 任务信息 -->
                 <div class="col-md-4 col-sm-6 col-xs-12">
                     <div class="info-box bg-aqua">
                         <span class="info-box-icon"><i class="fa fa-flag-o"></i></span>
@@ -47,6 +47,7 @@
                         </div>
                     </div>
                 </div>
+				
 
                 <#-- 调度信息 -->
                 <div class="col-md-4 col-sm-6 col-xs-12" >
@@ -70,19 +71,19 @@
                     </div>
                 </div>
 
-                <#-- 执行器 -->
+                <#-- 正在执行的任务信息 -->
                 <div class="col-md-4 col-sm-6 col-xs-12">
                     <div class="info-box bg-green">
                         <span class="info-box-icon"><i class="fa ion-ios-settings-strong"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">执行器数量</span>
-                            <span class="info-box-number">${executorCount}</span>
+                            <span class="info-box-text">处理中任务数量</span>
+                            <span class="info-box-number">${jobRunningCount}</span>
 
                             <div class="progress">
                                 <div class="progress-bar" style="width: 100%"></div>
                             </div>
-                            <span class="progress-description">心跳检测成功的执行器机器数量</span>
+                            <span class="progress-description">正在执行的任务数量</span>
                         </div>
                     </div>
                 </div>
@@ -119,8 +120,7 @@
 	</div>
 	<!-- /.content-wrapper -->
 	
-	<!-- footer -->
-	<@netCommon.commonFooter />
+
 </div>
 <@netCommon.commonScript />
 <#--<script src="${request.contextPath}/static/adminlte/plugins/daterangepicker/moment.min.js"></script>

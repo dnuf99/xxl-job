@@ -204,7 +204,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		try {
 			if(isVaildJobCode(cron)) {	
 				XxlJobDynamicScheduler.addJob(qz_name, qz_group, NO_SCHEEULER_CRON);
-				XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);				
+				//XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);				
 			}
 			else {
 				XxlJobDynamicScheduler.addJob(qz_name, qz_group, cron);
@@ -381,7 +381,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			boolean ret = false;
 			if(isVaildJobCode(cron)) {	
 				ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, NO_SCHEEULER_CRON);
-				XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);				
+				//XxlJobDynamicScheduler.pauseJob(qz_name, qz_group);				
 			}
 			else {
 				ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, cron);
@@ -468,6 +468,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		int jobInfoCount = xxlJobInfoDao.findAllCount();
 		int jobLogCount = xxlJobLogDao.triggerCountByHandleCode(-1);
 		int jobLogSuccessCount = xxlJobLogDao.triggerCountByHandleCode(ReturnT.SUCCESS_CODE);
+		int jobRunningCount = xxlJobLogDao.findRunningJobCount();
 
 		// executor count
 		Set<String> executerAddressSet = new HashSet<String>();
@@ -484,6 +485,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		int executorCount = executerAddressSet.size();
 
 		Map<String, Object> dashboardMap = new HashMap<String, Object>();
+		dashboardMap.put("jobRunningCount", jobRunningCount);
 		dashboardMap.put("jobInfoCount", jobInfoCount);
 		dashboardMap.put("jobLogCount", jobLogCount);
 		dashboardMap.put("jobLogSuccessCount", jobLogSuccessCount);

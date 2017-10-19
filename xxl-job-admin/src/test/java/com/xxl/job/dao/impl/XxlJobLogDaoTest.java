@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath*:spring/applicationcontext-*.xml")
+@ContextConfiguration(locations = "classpath*:test-applicationContext.xml")                     
 public class XxlJobLogDaoTest {
 
     @Resource

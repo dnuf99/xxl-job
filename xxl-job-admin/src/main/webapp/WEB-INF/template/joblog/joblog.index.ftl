@@ -115,8 +115,7 @@
 	    </section>
 	</div>
 	
-	<!-- footer -->
-	<@netCommon.commonFooter />
+
 </div>
 
 <!-- 日志清理.模态框 -->

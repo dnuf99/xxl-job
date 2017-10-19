@@ -161,6 +161,13 @@
 			</if>
 		</trim>
 	</select>
+	
+	<select id="findRunningJobCount" resultType="int">
+		SELECT count(1)
+		FROM XXL_JOB_QRTZ_TRIGGER_LOG AS t		
+		 WHERE (t.trigger_code = 200 AND t.handle_code=0)
+	</select>
+	
 
     <select id="triggerCountByDay" resultType="java.util.Map" >
         SELECT DATE_FORMAT(trigger_time,'%Y-%m-%d') triggerDay, COUNT(id) triggerCount

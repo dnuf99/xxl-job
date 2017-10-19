@@ -60,7 +60,7 @@
 <#macro commonHeader>
 	<header class="main-header">
 		<a href="${request.contextPath}/" class="logo">
-			<span class="logo-mini"><b>XXL</b></span>
+			<span class="logo-mini"><b>任务调度中心</b></span>
 			<span class="logo-lg"><b>任务调度中心</b></span>
 		</a>
 		<nav class="navbar navbar-static-top" role="navigation">
@@ -87,10 +87,11 @@
 			<ul class="sidebar-menu">
 				<li class="header">常用模块</li>
 				<li class="nav-click <#if pageName == "jobinfo">active</#if>" ><a href="${request.contextPath}/jobinfo"><i class="fa fa-circle-o text-aqua"></i><span>任务管理</span></a></li>
-				<li class="nav-click <#if pageName == "jobmontor">active</#if>" ><a href="${request.contextPath}/jobmontor"><i class="fa fa-circle-o text-bule"></i><span>任务统计</span></a></li>
 				<li class="nav-click <#if pageName == "joblog">active</#if>" ><a href="${request.contextPath}/joblog"><i class="fa fa-circle-o text-yellow"></i><span>调度日志</span></a></li>
+                <li class="nav-click <#if pageName == "jobmontor">active</#if>" ><a href="${request.contextPath}/jobmontor"><i class="fa fa-circle-o text-blue"></i><span>任务统计</span></a></li>               
                 <li class="nav-click <#if pageName == "jobgroup">active</#if>" ><a href="${request.contextPath}/jobgroup"><i class="fa fa-circle-o text-green"></i><span>执行器管理</span></a></li>
-				<li class="nav-click <#if pageName == "help">active</#if>" ><a href="${request.contextPath}/help"><i class="fa fa-circle-o text-gray"></i><span>使用教程</span></a></li>
+				<li class="nav-click <#if pageName == "userManger">active</#if>" ><a href="${request.contextPath}/userManger"><i class="fa fa-circle-o text-gray"></i><span>用户管理</span></a></li>
+				
 			</ul>
 		</section>
 		<!-- /.sidebar -->
@@ -174,15 +175,3 @@
 	<div class="control-sidebar-bg"></div>
 </#macro>
 
-<#macro commonFooter >
-	<footer class="main-footer">
-        Powered by <b>XXL-JOB</b> 1.9.0（快照版本）
-		<div class="pull-right hidden-xs">
-            <strong>Copyright &copy; 2015-${.now?string('yyyy')} &nbsp;
-                <a href="http://www.xuxueli.com/" target="_blank" >xuxueli</a>
-				&nbsp;
-                <a href="https://github.com/xuxueli/xxl-job" target="_blank" >github</a>
-            </strong><!-- All rights reserved. -->
-		</div>
-	</footer>
-</#macro>

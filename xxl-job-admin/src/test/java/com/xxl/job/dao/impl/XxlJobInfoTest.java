@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath*:spring/applicationcontext-*.xml")
+@ContextConfiguration(locations = "classpath*:test-applicationContext.xml")                     
 public class XxlJobInfoTest {
 	
 	@Resource

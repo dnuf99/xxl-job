@@ -48,5 +48,7 @@ public interface XxlJobLogDao {
 						@Param("jobId") int jobId,
 						@Param("clearBeforeTime") Date clearBeforeTime,
 						@Param("clearBeforeNum") int clearBeforeNum);
+	
+	public int findRunningJobCount();
 
 }
