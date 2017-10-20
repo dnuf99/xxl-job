@@ -30,7 +30,7 @@
 		  <div class="login-box">
 			<form id="changePwdForm" method="post" class="forget-pwd">
 				<div class="login-box-body">
-					<p class="login-box-msg">任务调度中心</p>
+					<p class="login-box-msg">密码修改</p>
 					<div class="form-group has-feedback">
 		            	<input type="password" name="oldPassword" class="form-control" placeholder="请输入原登录" >
 		            	<span class="glyphicon glyphicon-lock form-control-feedback"></span>
