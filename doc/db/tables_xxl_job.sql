@@ -234,5 +234,35 @@ CONSTRAINT username_UNIQUE UNIQUE (username)
  
  INSERT INTO USER_INFO (username, password, fullname, mobile, email, status, last_login_ip, last_login_time) VALUES ('admin', 'dffd94717afc3481bada4d16c70a6a1b', 'wangjy', '18918521111', 'test@htffund.com', 'Y', null, null);
 
+
+create table  ROLE_INFO ( 
+role_id       int(11) not null AUTO_INCREMENT comment '自增长主键', 
+role_name       varchar(45) not null comment '角色名称', 
+role_desc       varchar(45) comment '角色描述', 
+status       char(1) default 'Y' comment  '状态 Y:有效 C:无效' ,
+PRIMARY KEY (role_id),
+CONSTRAINT role_name_UNIQUE UNIQUE (role_name)
+)
+ ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ 
+INSERT INTO ROLE_INFO ( role_name, role_desc, status) VALUES ( 'admin', '管理员用户', 'Y');
+INSERT INTO ROLE_INFO ( role_name, role_desc, status) VALUES ( 'view', '访问用户', 'Y');
+
+
+create table  USER_ROLE_MAPPING ( 
+user_role_id       int(11) not null AUTO_INCREMENT comment '自增长主键', 
+user_id       int(11) not null comment '用户id', 
+role_id       int(11) not null comment '角色id', 
+status       char(1) default 'Y' comment '状态 Y:有效 C:无效', 
+insertimestamp       datetime comment '插入时间', 
+updatetimestamp       datetime comment '更新时间',
+PRIMARY KEY (user_role_id),
+CONSTRAINT user_role_UNIQUE UNIQUE (user_id, role_id)
+)
+ ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ 
+INSERT INTO USER_ROLE_MAPPING (user_id, role_id, status, insertimestamp, updatetimestamp) VALUES (1, 1, 'Y', null, null);
+
+
 commit;
 
