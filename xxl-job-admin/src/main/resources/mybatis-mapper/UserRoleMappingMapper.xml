@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xxl.job.admin.dao.UserRoleMappingDao">
+
+    <sql id="base_colums">
+        T1.user_role_id as userRoleId,
+        T1.user_id as userId,
+        T1.role_id as roleId,
+        T1.status as status,
+        T1.insertimestamp as insertimestamp,
+        T1.updatetimestamp as updatetimestamp
+    </sql>
+
+    <select id="getUserRoleMappingByPrimkey" parameterType="INTEGER" resultType="com.xxl.job.admin.core.model.UserRoleMapping">
+        SELECT <include refid="base_colums"/>
+         from USER_ROLE_MAPPING T1 
+           where 1 = 1 
+             and T1.user_role_id = #{userRoleId,jdbcType=INTEGER}
+
+    </select>
+
+    <select id="getUserRoleMappingByUK"  resultType="com.xxl.job.admin.core.model.UserRoleMapping">
+        SELECT <include refid="base_colums"/>
+         from USER_ROLE_MAPPING T1 
+           where 1 = 1
+             and T1.user_id = #{userId,jdbcType=INTEGER}
+             and T1.role_id = #{userId,jdbcType=INTEGER}
+
+    </select>
+    
+
+    <insert id="insertUserRoleMapping" parameterType="com.xxl.job.admin.core.model.UserRoleMapping">
+      insert into USER_ROLE_MAPPING(user_id,role_id,status,insertimestamp,updatetimestamp)
+      values (#{userId,jdbcType=INTEGER},#{roleId,jdbcType=INTEGER},#{status,jdbcType=CHAR},#{insertimestamp},#{updatetimestamp})
+    </insert>
+
+    <update id="updateUserRoleMapping" parameterType="com.xxl.job.admin.core.model.UserRoleMapping">
+      update USER_ROLE_MAPPING T1 set 
+           T1.user_role_id = T1.user_role_id
+         <if test="userId != null">
+           ,T1.user_id = #{userId,jdbcType=INTEGER}
+         </if>
+         <if test="roleId != null">
+           ,T1.role_id = #{roleId,jdbcType=INTEGER}
+         </if>
+         <if test="status != null">
+           ,T1.status = #{status,jdbcType=CHAR}
+         </if>
+         <if test="insertimestamp != null">
+           ,T1.insertimestamp = #{insertimestamp}
+         </if>
+         <if test="updatetimestamp != null">
+           ,T1.updatetimestamp = #{updatetimestamp}
+         </if>
+           where 1=1 
+             <if test="userRoleId != null">
+               and T1.user_role_id = #{userRoleId,jdbcType=INTEGER}
+             </if>
+           <if test="userId != null">
+             and T1.user_id = #{userId,jdbcType=INTEGER}
+           </if>
+            <if test="roleId != null">
+             and T1.role_id = #{roleId,jdbcType=INTEGER}
+           </if>
+
+    </update>
+</mapper>

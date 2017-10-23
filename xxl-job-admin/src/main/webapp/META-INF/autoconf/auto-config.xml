@@ -16,6 +16,8 @@
         <property name="xxl.job.db.password" description="数据库密码" defaultValue="1aaaaa" />
         <property name="xxl.job.accessToken" description="token" defaultValue="htf-token" />
         
+        <property name="xxl.datasource.ec.jndiName" description="token" defaultValue="java:comp/env/xxl" />
+        
         
         
      </group>

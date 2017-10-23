@@ -1,5 +1,6 @@
 package com.xxl.job.admin.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xxl.job.admin.controller.annotation.PermessionLimit;
 import com.xxl.job.admin.controller.interceptor.PermissionInterceptor;
+import com.xxl.job.admin.core.model.RoleInfo;
 import com.xxl.job.admin.core.model.UserInfo;
 import com.xxl.job.admin.core.util.CookieUtil;
-import com.xxl.job.admin.core.util.PropertiesUtil;
+import com.xxl.job.admin.dao.RoleInfoDao;
 import com.xxl.job.admin.dao.UserInfoDao;
+import com.xxl.job.admin.service.UserRoleService;
 import com.xxl.job.admin.service.XxlJobService;
 import com.xxl.job.core.biz.model.ReturnT;
 
@@ -30,19 +33,32 @@ import com.xxl.job.core.biz.model.ReturnT;
 @Controller
 public class IndexController {
 
+	private static final String DEFAULT_PASSWORD = "abc=123";
+
 	@Resource
 	private XxlJobService xxlJobService;
 	
 	@Resource
 	private UserInfoDao userInfoDao;
 	
+	@Resource
+	private RoleInfoDao roleInfoDao;
+		
+	@Resource
+	private UserRoleService userRoleService;
+	
+	
 
 	@RequestMapping("/")
-	public String index(Model model) {
-
+	public String index(HttpServletRequest request, Model model) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		model.addAttribute("userName", userName);
+		boolean isEditable = userRoleService.isUserAsAdmin(userName);
+		model.addAttribute("editable", isEditable);
+		
 		Map<String, Object> dashboardMap = xxlJobService.dashboardInfo();
 		model.addAllAttributes(dashboardMap);
-
+		
 		return "index";
 	}
 
@@ -114,14 +130,15 @@ public class IndexController {
 		return false;
 	}
 
-	@RequestMapping("/userManger")
-	public String userManger() {
+	@RequestMapping("/pwdManger")
+	public String pwdManger(HttpServletRequest request, Model model) {
 
-		/*if (!PermissionInterceptor.ifLogin(request)) {
-			return "redirect:/toLogin";
-		}*/
-
-		return "userManger";
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		model.addAttribute("userName", userName);
+		boolean isEditable = userRoleService.isUserAsAdmin(userName);
+		model.addAttribute("editable", isEditable);
+		
+		return "pwdManger";
 	}
 	
 
@@ -158,6 +175,47 @@ public class IndexController {
 			} 						
 		}else {
 			errorMsg = "账号未登录，无法修改密码";
+		}
+		
+		return new ReturnT<String>(500, errorMsg);
+
+	}
+	
+	
+	@RequestMapping("/userManger")
+	public String userManger(HttpServletRequest request, Model model) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		model.addAttribute("userName", userName);
+		boolean isEditable = userRoleService.isUserAsAdmin(userName);
+		// 执行器列表
+		List<RoleInfo> roleList =  roleInfoDao.findAllRoleInfo();
+		model.addAttribute("roleList", roleList);
+		model.addAttribute("editable", isEditable);
+		return "userManger";
+	}
+	
+	
+	@RequestMapping(value="userAdd", method=RequestMethod.POST)
+	@ResponseBody
+	@PermessionLimit(limit=false)
+	public ReturnT<String> userAdd(HttpServletRequest request, HttpServletResponse response, String userName, String roleName, String fullname, String mobileno) {
+		String errorMsg = "新增用户失败！";
+		if (isLogin(request)) {
+			if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(roleName)) {
+				UserInfo userInfo = new UserInfo();	
+				userInfo.setUsername(userName);
+				String key = DEFAULT_PASSWORD + "_" + userName;
+				String token = DigestUtils.md5Hex(key);
+				userInfo.setPassword(token);
+				userInfo.setFullname(fullname);
+				userInfo.setMobile(mobileno);
+				userInfo.setStatus(UserRoleService.STAUTS_VAILD);
+				
+				return userRoleService.AddUserInfo(userInfo, roleName);
+				
+			} 						
+		}else {
+			errorMsg = "账号未登录，无法新增用户";
 		}
 		
 		return new ReturnT<String>(500, errorMsg);

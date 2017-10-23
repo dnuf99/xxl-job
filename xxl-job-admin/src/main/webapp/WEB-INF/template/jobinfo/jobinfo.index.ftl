@@ -51,9 +51,11 @@
 	            <div class="col-xs-2">
 	            	<button class="btn btn-block btn-info" id="searchBtn">搜索</button>
 	            </div>
+	            <#if editable==true>
 	            <div class="col-xs-2">
 	            	<button class="btn btn-block btn-success add" type="button">+新增任务</button>
 	            </div>
+	            </#if>
           	</div>
 	    	
 			<div class="row">
@@ -79,7 +81,10 @@
 					                  	<th name="alarmEmail" >报警邮件</th>
 					                  	<th name="alarmMobileno" >报警短信</th>
 					                  	<th name="jobStatus" >状态</th>
+					                  	<#if editable==true>
 					                  	<th>操作</th>
+					                  	</#if>
+					                  	
 					                </tr>
 				                </thead>
 				                <tbody></tbody>
@@ -144,7 +149,7 @@
                         <label for="firstname" class="col-sm-2 control-label">执行参数<font color="black">*</font></label>
                         <div class="col-sm-4"><input type="text" class="form-control" name="executorParam" placeholder="请输入“执行参数”" maxlength="100" ></div>
                         <label for="lastname" class="col-sm-2 control-label">后续任务Key<font color="black">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入子任务的任务Key,如存在多个逗号分隔" maxlength="100" disabled></div>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入后续任务的任务Key,如存在多个逗号分隔" maxlength="100" disabled></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">阻塞处理策略<font color="red">*</font></label>
@@ -306,7 +311,7 @@ process.exit(0)
                         <label for="firstname" class="col-sm-2 control-label">执行参数<font color="black">*</font></label>
                         <div class="col-sm-4"><input type="text" class="form-control" name="executorParam" placeholder="请输入“执行参数”" maxlength="100" ></div>
                         <label for="lastname" class="col-sm-2 control-label">后续任务Key<font color="black">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入子任务的任务Key,如存在多个逗号分隔" maxlength="100" disabled></div>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="childJobKey" placeholder="请输入后续任务的任务Key,如存在多个逗号分隔" maxlength="100" disabled></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">阻塞处理策略<font color="red">*</font></label>
@@ -359,6 +364,10 @@ process.exit(0)
 <script src="${request.contextPath}/static/plugins/jquery/jquery.validate.min.js"></script>
 <!-- moment -->
 <script src="${request.contextPath}/static/adminlte/plugins/daterangepicker/moment.min.js"></script>
+<#if editable==true>
 <script src="${request.contextPath}/static/js/jobinfo.index.1.js"></script>
+<#else>
+<script src="${request.contextPath}/static/js/jobinfo.index.2.js"></script>
+</#if>
 </body>
 </html>

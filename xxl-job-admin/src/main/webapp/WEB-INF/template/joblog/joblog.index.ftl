@@ -77,9 +77,11 @@
                     <button class="btn btn-block btn-info" id="searchBtn">搜索</button>
                 </div>
 
-	            <div class="col-xs-1">
-                    <button class="btn btn-block btn-nomal" id="clearLog">清理</button>
-	            </div>
+				<#if editable==true>
+		            <div class="col-xs-1">
+	                    <button class="btn btn-block btn-nomal" id="clearLog">清理</button>
+		            </div>
+		        </#if>
           	</div>
 			
 			<div class="row">
@@ -180,6 +182,10 @@
 <!-- daterangepicker -->
 <script src="${request.contextPath}/static/adminlte/plugins/daterangepicker/moment.min.js"></script>
 <script src="${request.contextPath}/static/adminlte/plugins/daterangepicker/daterangepicker.js"></script>
+<#if editable==true>
 <script src="${request.contextPath}/static/js/joblog.index.1.js"></script>
+<#else>
+<script src="${request.contextPath}/static/js/joblog.index.2.js"></script>
+</#if>
 </body>
 </html>

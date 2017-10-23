@@ -32,7 +32,7 @@ public class XxlJobInfo {
 	private String glueRemark;		// GLUE备注
 	private Date glueUpdatetime;	// GLUE更新时间
 
-	private String childJobKey;		// 子任务Key
+	private String childJobKey;		// 后续任务Key
 	
 	// copy from quartz
 	private String jobStatus;		// 任务状态 【base on quartz】

@@ -67,20 +67,20 @@ public class AdminBizImpl implements AdminBiz {
                 childTriggerMsg = "<hr>";
                 String[] childJobKeys = xxlJobInfo.getChildJobKey().split(",");
                 for (int i = 0; i < childJobKeys.length; i++) {
-                	//判断子任务是否处于暂停状态，若为暂停状态则不触发
+                	//判断后续任务是否处于暂停状态，若为暂停状态则不触发
                     String[] jobKeyArr = childJobKeys[i].split("_");
                     if (jobKeyArr!=null && jobKeyArr.length==2) {
                     	if(isChildJobNomal(jobKeyArr[0], jobKeyArr[1])) {
 	                    	ReturnT<String> triggerChildResult = xxlJobService.triggerJob(Integer.valueOf(jobKeyArr[1]));
 	                        // add msg
-	                        childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发子任务{2}, 子任务Key: {3}, 子任务触发备注: {4}",
+	                        childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务{2}, 后续任务Key: {3}, 后续任务触发备注: {4}",
 	                                (i+1), childJobKeys.length, (triggerChildResult.getCode()==ReturnT.SUCCESS_CODE?"成功":"失败"), childJobKeys[i], triggerChildResult.getMsg());
                     	}else {
-                    		childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发子任务失败, 子任务为暂停发起状态, 子任务Key: {2}",
+                    		childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务失败, 后续任务为暂停发起状态, 后续任务Key: {2}",
                                     (i+1), childJobKeys.length, childJobKeys[i]);
                     	}
                     } else {
-                        childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发子任务失败, 子任务Key格式错误, 子任务Key: {2}",
+                        childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务失败, 后续任务Key格式错误, 后续任务Key: {2}",
                                 (i+1), childJobKeys.length, childJobKeys[i]);
                     }
                 	
@@ -98,7 +98,7 @@ public class AdminBizImpl implements AdminBiz {
             handleMsg.append(handleCallbackParam.getExecuteResult().getMsg());
         }
         if (childTriggerMsg !=null) {
-            handleMsg.append("<br>子任务触发备注：").append(childTriggerMsg);
+            handleMsg.append("<br>后续任务触发备注：").append(childTriggerMsg);
         }
 
         // success, save log

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.xxl.job.admin.controller.interceptor.PermissionInterceptor;
 import com.xxl.job.admin.core.model.XxlJobGroup;
+import com.xxl.job.admin.core.util.CookieUtil;
 import com.xxl.job.admin.dao.XxlJobGroupDao;
+import com.xxl.job.admin.service.UserRoleService;
 import com.xxl.job.admin.service.XxlJobService;
 
 /**
@@ -28,9 +32,16 @@ public class JobMontorController {
 	@Resource
 	private XxlJobService xxlJobService;
 	
+	@Resource
+	private UserRoleService userRoleService;
+	
 	@RequestMapping
-	public String index(Model model, @RequestParam(required = false, defaultValue = "-1") int jobGroup) {
+	public String index(HttpServletRequest request, Model model, @RequestParam(required = false, defaultValue = "-1") int jobGroup) {
 
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		model.addAttribute("userName", userName);
+		boolean isEditable = userRoleService.isUserAsAdmin(userName);
+		model.addAttribute("editable", isEditable);
 		// 任务组
 		List<XxlJobGroup> jobGroupList =  xxlJobGroupDao.findAll();
 		model.addAttribute("JobGroupList", jobGroupList);

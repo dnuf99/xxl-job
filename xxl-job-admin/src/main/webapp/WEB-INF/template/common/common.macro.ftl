@@ -66,8 +66,17 @@
 		<nav class="navbar navbar-static-top" role="navigation">
 			<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"><span class="sr-only">切换导航</span></a>
           	<div class="navbar-custom-menu">
+          		<ul class="nav navbar-nav">
+					<li class="dropdown user user-menu">
+						
+	                    <a href="#">
+                      		<span class="hidden-xs"><font color="red">${userName}</font></span>
+	                    </a>
+					</li>
+				</ul>
 				<ul class="nav navbar-nav">
 					<li class="dropdown user user-menu">
+						
 	                    <a href=";" id="logoutBtn" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                       		<span class="hidden-xs">注销</span>
 	                    </a>
@@ -90,7 +99,10 @@
 				<li class="nav-click <#if pageName == "joblog">active</#if>" ><a href="${request.contextPath}/joblog"><i class="fa fa-circle-o text-yellow"></i><span>调度日志</span></a></li>
                 <li class="nav-click <#if pageName == "jobmontor">active</#if>" ><a href="${request.contextPath}/jobmontor"><i class="fa fa-circle-o text-blue"></i><span>任务统计</span></a></li>               
                 <li class="nav-click <#if pageName == "jobgroup">active</#if>" ><a href="${request.contextPath}/jobgroup"><i class="fa fa-circle-o text-green"></i><span>执行器管理</span></a></li>
+				<#if editable==true>
 				<li class="nav-click <#if pageName == "userManger">active</#if>" ><a href="${request.contextPath}/userManger"><i class="fa fa-circle-o text-gray"></i><span>用户管理</span></a></li>
+				</#if>
+				<li class="nav-click <#if pageName == "pwdManger">active</#if>" ><a href="${request.contextPath}/pwdManger"><i class="fa fa-circle-o text-gray"></i><span>密码管理</span></a></li>
 				
 			</ul>
 		</section>

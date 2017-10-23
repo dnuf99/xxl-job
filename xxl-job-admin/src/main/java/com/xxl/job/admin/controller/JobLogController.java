@@ -1,16 +1,14 @@
 package com.xxl.job.admin.controller;
 
-import com.xxl.job.admin.core.model.XxlJobGroup;
-import com.xxl.job.admin.core.model.XxlJobInfo;
-import com.xxl.job.admin.core.model.XxlJobLog;
-import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
-import com.xxl.job.admin.dao.XxlJobGroupDao;
-import com.xxl.job.admin.dao.XxlJobInfoDao;
-import com.xxl.job.admin.dao.XxlJobLogDao;
-import com.xxl.job.core.biz.ExecutorBiz;
-import com.xxl.job.core.biz.model.LogResult;
-import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.rpc.netcom.NetComClientProxy;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
@@ -21,12 +19,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Resource;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.xxl.job.admin.controller.interceptor.PermissionInterceptor;
+import com.xxl.job.admin.core.model.XxlJobGroup;
+import com.xxl.job.admin.core.model.XxlJobInfo;
+import com.xxl.job.admin.core.model.XxlJobLog;
+import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
+import com.xxl.job.admin.core.util.CookieUtil;
+import com.xxl.job.admin.dao.XxlJobGroupDao;
+import com.xxl.job.admin.dao.XxlJobInfoDao;
+import com.xxl.job.admin.dao.XxlJobLogDao;
+import com.xxl.job.admin.service.UserRoleService;
+import com.xxl.job.core.biz.ExecutorBiz;
+import com.xxl.job.core.biz.model.LogResult;
+import com.xxl.job.core.biz.model.ReturnT;
 
 /**
  * index controller
@@ -43,10 +48,15 @@ public class JobLogController {
 	public XxlJobInfoDao xxlJobInfoDao;
 	@Resource
 	public XxlJobLogDao xxlJobLogDao;
+	
+	@Resource
+	private UserRoleService userRoleService;
 
 	@RequestMapping
-	public String index(Model model, @RequestParam(required = false, defaultValue = "0") Integer jobId) {
-
+	public String index(HttpServletRequest request, Model model, @RequestParam(required = false, defaultValue = "0") Integer jobId) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		model.addAttribute("userName", userName);
+		boolean isEditable = isEditable(request);
 		// 执行器列表
 		List<XxlJobGroup> jobGroupList =  xxlJobGroupDao.findAll();
 		model.addAttribute("JobGroupList", jobGroupList);
@@ -56,8 +66,15 @@ public class JobLogController {
 			XxlJobInfo jobInfo = xxlJobInfoDao.loadById(jobId);
 			model.addAttribute("jobInfo", jobInfo);
 		}
+		
+		model.addAttribute("editable", isEditable);
 
 		return "joblog/joblog.index";
+	}
+	
+	private boolean isEditable(HttpServletRequest request) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		return userRoleService.isUserAsAdmin(userName);
 	}
 
 	@RequestMapping("/getJobsByGroup")
@@ -102,7 +119,6 @@ public class JobLogController {
 	public String logDetailPage(int id, Model model){
 
 		// base check
-		ReturnT<String> logStatue = ReturnT.SUCCESS;
 		XxlJobLog jobLog = xxlJobLogDao.load(id);
 		if (jobLog == null) {
             throw new RuntimeException("抱歉，日志ID非法.");
@@ -140,7 +156,10 @@ public class JobLogController {
 
 	@RequestMapping("/logKill")
 	@ResponseBody
-	public ReturnT<String> logKill(int id){
+	public ReturnT<String> logKill(HttpServletRequest request, int id){
+		if(!isEditable(request)) {
+			return new ReturnT<String>(ReturnT.FAIL_CODE, "没有操作权限");
+		}
 		// base check
 		XxlJobLog log = xxlJobLogDao.load(id);
 		XxlJobInfo jobInfo = xxlJobInfoDao.loadById(log.getJobId());
@@ -161,21 +180,26 @@ public class JobLogController {
 			runResult = new ReturnT<String>(500, e.getMessage());
 		}
 
-		if (ReturnT.SUCCESS_CODE == runResult.getCode()) {
+		//更改逻辑，改为只要用户发起，强行标示终止任务， 解决处理器故障情况下，无法手工终止操作的问题；
+		//if (ReturnT.SUCCESS_CODE == runResult.getCode()) {
+		if (runResult != null) {
 			log.setHandleCode(ReturnT.FAIL_CODE);
 			log.setHandleMsg("人为操作主动终止:" + (runResult.getMsg()!=null?runResult.getMsg():""));
 			log.setHandleTime(new Date());
 			xxlJobLogDao.updateHandleInfo(log);
 			return new ReturnT<String>(runResult.getMsg());
 		} else {
-			return new ReturnT<String>(500, runResult.getMsg());
+			return new ReturnT<String>(500, "人工终止异常");
 		}
 	}
 
 	@RequestMapping("/clearLog")
 	@ResponseBody
-	public ReturnT<String> clearLog(int jobGroup, int jobId, int type){
-
+	public ReturnT<String> clearLog(HttpServletRequest request, int jobGroup, int jobId, int type){
+		if(!isEditable(request)) {
+			return new ReturnT<String>(ReturnT.FAIL_CODE, "没有操作权限");
+		}
+		
 		Date clearBeforeTime = null;
 		int clearBeforeNum = 0;
 		if (type == 1) {

@@ -29,7 +29,9 @@
 					<div class="box">
 			            <div class="box-header">
 							<h3 class="box-title">执行器列表</h3>&nbsp;&nbsp;
+							<#if editable==true>
                             <button class="btn btn-info btn-xs pull-left2 add" >+新增执行器</button>
+                            </#if>
 						</div>
 			            <div class="box-body">
 			              	<table id="joblog_list" class="table table-bordered table-striped display" width="100%" >
@@ -41,7 +43,9 @@
                                         <th name="title" >名称</th>
                                         <th name="addressType" >注册方式</th>
                                         <th name="registryList" >OnLine 机器</th>
+                                        <#if editable==true>
                                         <th name="operate" >操作</th>
+                                        </#if>
 					                </tr>
 				                </thead>
                                 <tbody>
@@ -54,6 +58,7 @@
                                         <td>${group.title}</td>
                                         <td><#if group.addressType==0>自动注册<#else>手动录入</#if></td>
                                         <td><#if group.registryList?exists><#list group.registryList as item><span class="badge bg-green">${item}</span><br></#list></#if></td>
+										<#if editable==true>
 										<td>
                                             <button class="btn btn-warning btn-xs update"
                                                     id="${group.id}"
@@ -64,6 +69,7 @@
                                                     addressList="${group.addressList}" >编辑</button>
                                             <button class="btn btn-danger btn-xs remove" id="${group.id}" >删除</button>
 										</td>
+										</#if>
 									</tr>
 								</#list>
 								</#if>

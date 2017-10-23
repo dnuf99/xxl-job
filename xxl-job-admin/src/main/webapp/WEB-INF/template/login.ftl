@@ -9,11 +9,11 @@
 <body class="hold-transition login-page">
 	<div class="login-box">
 		<div class="login-logo">
-			<a><b>调度中心</b>JOB</a>
+			<a><b>分布式任务调度中心</b></a>
 		</div>
 		<form id="loginForm" method="post" >
 			<div class="login-box-body">
-				<p class="login-box-msg">任务调度中心</p>
+				<p class="login-box-msg">任务调度中心管理平台</p>
 				<div class="form-group has-feedback">
 	            	<input type="text" name="userName" class="form-control" placeholder="请输入登录账号" value="admin" >
 	            	<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
