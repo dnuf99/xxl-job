@@ -1,5 +1,17 @@
 package com.xxl.job.admin.core.thread;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.xxl.job.admin.core.model.XxlJobGroup;
 import com.xxl.job.admin.core.model.XxlJobInfo;
 import com.xxl.job.admin.core.model.XxlJobLog;
@@ -7,13 +19,6 @@ import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
 import com.xxl.job.admin.core.util.MailUtil;
 import com.xxl.job.admin.core.util.MessageSenderManagerUtils;
 import com.xxl.job.core.biz.model.ReturnT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * job monitor instance
@@ -109,10 +114,10 @@ public class JobFailMonitorHelper {
 
 			Set<String> mobilenoSet = new HashSet<String>(Arrays.asList(info.getAlarmMobileno().split(",")));
 			for (String mobleno: mobilenoSet) {
-				String title = "调度监控报警";
+				String title = "调度监控报警: ";
 				XxlJobGroup group = XxlJobDynamicScheduler.xxlJobGroupDao.load(Integer.valueOf(info.getJobGroup()));
 				String content = MessageFormat.format("任务调度失败, 执行器名称:{0}, 任务描述:{1}.", group!=null?group.getTitle():"null", info.getJobDesc());
-				MessageSenderManagerUtils.sendMessage(mobleno, "76354958", content, "1");
+				MessageSenderManagerUtils.sendMessage(mobleno,  title + content);
 			}
 		}
 	}

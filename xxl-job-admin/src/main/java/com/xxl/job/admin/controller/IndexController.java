@@ -146,6 +146,10 @@ public class IndexController {
 	@ResponseBody
 	@PermessionLimit(limit=false)
 	public ReturnT<String> updatePwd(HttpServletRequest request, HttpServletResponse response, String oldPassword, String newPassword) {
+		if(!isEditable(request)) {
+			return new ReturnT<String>(ReturnT.FAIL_CODE, "没有操作权限");
+		}
+		
 		String errorMsg = "修改密码失败！";
 		if (isLogin(request)) {
 			if (StringUtils.isNotBlank(oldPassword) && StringUtils.isNotBlank(newPassword)) {
@@ -194,11 +198,19 @@ public class IndexController {
 		return "userManger";
 	}
 	
+	private boolean isEditable(HttpServletRequest request) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		return userRoleService.isUserAsAdmin(userName);
+	}
 	
 	@RequestMapping(value="userAdd", method=RequestMethod.POST)
 	@ResponseBody
 	@PermessionLimit(limit=false)
 	public ReturnT<String> userAdd(HttpServletRequest request, HttpServletResponse response, String userName, String roleName, String fullname, String mobileno) {
+		if(!isEditable(request)) {
+			return new ReturnT<String>(ReturnT.FAIL_CODE, "没有操作权限");
+		}
+		
 		String errorMsg = "新增用户失败！";
 		if (isLogin(request)) {
 			if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(roleName)) {
@@ -216,6 +228,51 @@ public class IndexController {
 			} 						
 		}else {
 			errorMsg = "账号未登录，无法新增用户";
+		}
+		
+		return new ReturnT<String>(500, errorMsg);
+
+	}
+	
+	
+	
+	@RequestMapping("/resetPwdManger")
+	public String resetPwdManger(HttpServletRequest request, Model model) {
+		String userName = CookieUtil.getValue(request, PermissionInterceptor.LOGIN_USER_NAME);
+		model.addAttribute("userName", userName);
+		boolean isEditable = userRoleService.isUserAsAdmin(userName);
+		model.addAttribute("editable", isEditable);
+		
+		return "resetPwdManger";
+	}
+	
+	
+	@RequestMapping(value="resetPwdAction", method=RequestMethod.POST)
+	@ResponseBody
+	@PermessionLimit(limit=false)
+	public ReturnT<String> resetPwdAction(HttpServletRequest request, HttpServletResponse response, String userName) {
+		if(!isEditable(request)) {
+			return new ReturnT<String>(ReturnT.FAIL_CODE, "没有操作权限");
+		}
+		
+		String errorMsg = "重置密码失败！";
+		if (isLogin(request)) {
+			if (StringUtils.isNotBlank(userName)) {
+				UserInfo userInfo = userInfoDao.getUserInfoByName(userName);
+				if(userInfo != null) {
+					userInfo.setUsername(userName);
+					String key = DEFAULT_PASSWORD + "_" + userName;
+					String token = DigestUtils.md5Hex(key);
+					userInfo.setPassword(token);
+					userInfoDao.updateUserInfo(userInfo);	
+					return ReturnT.SUCCESS;
+				}
+				else {
+					errorMsg = "输入的客户名未不存在";
+				}
+			} 						
+		}else {
+			errorMsg = "账号未登录，无法重置密码";
 		}
 		
 		return new ReturnT<String>(500, errorMsg);
