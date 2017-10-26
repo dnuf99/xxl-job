@@ -33,6 +33,7 @@ import com.xxl.job.admin.dao.XxlJobGroupDao;
 import com.xxl.job.admin.dao.XxlJobInfoDao;
 import com.xxl.job.admin.dao.XxlJobLogDao;
 import com.xxl.job.admin.dao.XxlJobRegistryDao;
+import com.xxl.job.admin.service.XxlJobService;
 import com.xxl.job.core.biz.AdminBiz;
 import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.rpc.netcom.NetComClientProxy;
@@ -145,6 +146,12 @@ public final class XxlJobDynamicScheduler implements ApplicationContextAware {
 				String cronExpression = ((CronTriggerImpl) trigger).getCronExpression();
 				if(noDepenceJob(jobInfo)) {
 					jobInfo.setJobCron(cronExpression);
+				}
+				jobInfo.setJobCronDesc(jobInfo.getJobCron());
+				
+				if(XxlJobService.NO_SCHEEULER_CRON.equals(jobInfo.getJobCron())) {
+					jobInfo.setJobCron("");
+					jobInfo.setJobCronDesc("人工触发");
 				}
 			}
 

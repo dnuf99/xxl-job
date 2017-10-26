@@ -13,6 +13,8 @@ import java.util.Map;
  */
 public interface XxlJobService {
 	
+	public final static String NO_SCHEEULER_CRON = "0 15 10 15 * ? 2099";
+	
 	public Map<String, Object> pageList(int start, int length, int jobGroup, String executorHandler, String filterTime);
 	
 	public ReturnT<String> add(XxlJobInfo jobInfo);

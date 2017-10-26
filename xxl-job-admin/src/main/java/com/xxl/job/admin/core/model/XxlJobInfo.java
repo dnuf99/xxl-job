@@ -36,6 +36,8 @@ public class XxlJobInfo {
 	
 	// copy from quartz
 	private String jobStatus;		// 任务状态 【base on quartz】
+	
+	private String jobCronDesc; // 触发条件描述
 
 	public int getId() {
 		return id;
@@ -199,4 +201,13 @@ public class XxlJobInfo {
 		this.jobStatus = jobStatus;
 	}
 
+	public String getJobCronDesc() {
+		return jobCronDesc;
+	}
+
+	public void setJobCronDesc(String jobCronDesc) {
+		this.jobCronDesc = jobCronDesc;
+	}
+
+	
 }

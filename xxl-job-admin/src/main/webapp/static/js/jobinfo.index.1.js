@@ -64,7 +64,7 @@ $(function() {
 						}
 					},
 	                { "data": 'executorParam', "visible" : false},
-					{ "data": 'jobCron', "visible" : true,"width":'10%'},
+					{ "data": 'jobCronDesc', "visible" : true,"width":'10%'},
 	                { 
 	                	"data": 'addTime', 
 	                	"visible" : false, 
@@ -104,9 +104,9 @@ $(function() {
 	                		return function(){
 	                			// status
 	                			var pause_resume = "";
-	                			if ('NORMAL' == row.jobStatus) {
+	                			if ('NORMAL' == row.jobStatus && row.jobCron != '') {
 	                				pause_resume = '<button class="btn btn-primary btn-xs job_operate" _type="job_pause" type="button">暂停</button>  ';
-								} else if ('PAUSED' == row.jobStatus){
+								} else if ('PAUSED' == row.jobStatus && row.jobCron != ''){
 									pause_resume = '<button class="btn btn-primary btn-xs job_operate" _type="job_resume" type="button">恢复</button>  ';
 								}
 	                			// log url
@@ -260,9 +260,7 @@ $(function() {
 				required : true,
 				maxlength: 50
 			},
-            jobCron : {
-            	required : true
-            },
+           
 			author : {
 				required : true
 			}
@@ -270,9 +268,6 @@ $(function() {
         messages : {  
             jobDesc : {
             	required :"请输入“描述”."
-            },
-            jobCron : {
-            	required :"请输入“Cron”或者“前置任务”."
             },
             author : {
             	required : "请输入“负责人”."
@@ -393,9 +388,6 @@ $(function() {
 				required : true,
 				maxlength: 50
 			},
-			jobCron : {
-				required : true
-			},
 			author : {
 				required : true
 			}
@@ -403,9 +395,6 @@ $(function() {
 		messages : {
 			jobDesc : {
 				required :"请输入“描述”."
-			},
-			jobCron : {
-				required :"请输入“Cron”或者“前置任务”."
 			},
 			author : {
 				required : "请输入“负责人”."

@@ -2,7 +2,6 @@ package com.xxl.job.admin.service.impl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
-import javax.swing.event.ListSelectionEvent;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +47,6 @@ import com.xxl.job.core.glue.GlueTypeEnum;
 public class XxlJobServiceImpl implements XxlJobService {
 	private static Logger logger = LoggerFactory.getLogger(XxlJobServiceImpl.class);
 
-	private final static String NO_SCHEEULER_CRON = "0 15 10 15 * ? 2099";
 	
 	@Resource
 	private XxlJobGroupDao xxlJobGroupDao;
@@ -114,6 +111,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 	@Override
 	public ReturnT<String> add(XxlJobInfo jobInfo) {
+		//新增逻辑，若触发条件为空，则为手工触发任务， 则将cron表达式设置为2099年
+		if (StringUtils.isBlank(jobInfo.getJobCron())) {
+			jobInfo.setJobCron(NO_SCHEEULER_CRON);
+		}
 		// valid
 		XxlJobGroup group = xxlJobGroupDao.load(jobInfo.getJobGroup());
 		if (group == null) {
@@ -233,7 +234,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 	@Override
 	public ReturnT<String> reschedule(XxlJobInfo jobInfo) {
-
+		//新增逻辑，若触发条件为空，则为手工触发任务， 则将cron表达式设置为2099年
+		if (StringUtils.isBlank(jobInfo.getJobCron())) {
+			jobInfo.setJobCron(NO_SCHEEULER_CRON);
+		}
 		// valid
 		if (!CronExpression.isValidExpression(jobInfo.getJobCron())) {
 			if (StringUtils.isNotBlank(jobInfo.getJobCron())) {
@@ -386,6 +390,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 			}
 			else {
 				ret = XxlJobDynamicScheduler.rescheduleJob(qz_group, qz_name, cron);
+				if(NO_SCHEEULER_CRON.equals(cron)) {
+					XxlJobDynamicScheduler.resumeJob(qz_name, qz_group);	
+				}
 			}
 		    
 		    return ret?ReturnT.SUCCESS:ReturnT.FAIL;

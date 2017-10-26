@@ -130,8 +130,8 @@
 							</#list>
                             </select>
                         </div>
-                        <label for="lastname" class="col-sm-2 control-label">触发条件<font color="red">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="请输入“Cron”或者“前置任务”" maxlength="20" ></div>
+                        <label for="lastname" class="col-sm-2 control-label">触发条件<font color="black">*</font></label>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="“Cron”或者“前置任务”，为空人工触发" maxlength="20" ></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">运行模式<font color="red">*</font></label>
@@ -292,8 +292,8 @@ process.exit(0)
 							</#list>
                             </select>
                         </div>
-                        <label for="lastname" class="col-sm-2 control-label">触发条件<font color="red">*</font></label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="请输入“Cron”或者“前置任务”" maxlength="20" ></div>
+                        <label for="lastname" class="col-sm-2 control-label">触发条件<font color="black">*</font></label>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="jobCron" placeholder="“Cron”或者“前置任务”，为空人工触发" maxlength="20" ></div>
                     </div>
                     <div class="form-group">
                         <label for="firstname" class="col-sm-2 control-label">运行模式<font color="red">*</font></label>

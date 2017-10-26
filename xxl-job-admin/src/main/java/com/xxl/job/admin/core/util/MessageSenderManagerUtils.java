@@ -59,8 +59,9 @@ public class MessageSenderManagerUtils {
 			        message.setMobileNo(mobileno);
 			        message.setContent(content);
 			        Result result = messageService.sendMessage(message);
-			        LOG.info("[sendMobileMsg,mobileNo=," + mobileno + "errorCode=" + result.getErrorCode() + ",errorMsg=" + result.getErrorMsg()
+			        LOG.info("[sendMobileMsg,mobileNo=" + mobileno + ", errorCode=" + result.getErrorCode() + ",errorMsg=" + result.getErrorMsg()
 			                + " ,短信数据：" + content);
+			        LOG.info("isSuccess = " + result.isSucceed() + ", response : " + result.getResponseId());
 
 				} catch (Exception e) {
 					LOG.error("消息发送异常！mobileno:" + mobileno + ",消息: " + content, e);
