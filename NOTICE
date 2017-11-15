@@ -44,3 +44,5 @@ Log4j:
     * http://www.apache.org/licenses/LICENSE-2.0 (Apache License 2.0)
   * HOMEPAGE:
     * http://log4j.apache.org
+
+mvn deploy:deploy-file -DgroupId=com.xuxueli -DartifactId=xxl-job-core -Dversion=1.9.0.1-SNAPSHOT -Dpackaging=jar -Dfile=F:\Workspace\99fund\xxl-job\xxl-job-core\target\xxl-job-core-1.9.0.1-SNAPSHOT.jar -DrepositoryId=snapshots -Durl=http://172.16.8.10:9090/nexus/content/repositories/snapshots/
