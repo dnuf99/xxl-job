@@ -154,14 +154,14 @@
                     </plugin>
 				</plugins>
 			</build>
-			<distributionManagement>
-				<repository>
-					<id>snapshots</id>
-					<name>snapshots</name>
-					<url>http://172.16.8.10:9090/nexus/content/repositories/snapshots/</url>
-				</repository>
-			</distributionManagement>
+			
 		</profile>
 	</profiles>
-
+	<distributionManagement>
+		<repository>
+			<id>snapshots</id>
+			<name>snapshots</name>
+			<url>http://172.16.8.10:9090/nexus/content/repositories/snapshots/</url>
+		</repository>
+	</distributionManagement>
 </project>
