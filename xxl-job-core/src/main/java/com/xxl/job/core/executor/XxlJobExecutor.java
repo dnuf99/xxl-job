@@ -2,7 +2,9 @@ package com.xxl.job.core.executor;
 
 import com.xxl.job.core.biz.AdminBiz;
 import com.xxl.job.core.biz.ExecutorBiz;
+import com.xxl.job.core.biz.ShutdownBiz;
 import com.xxl.job.core.biz.impl.ExecutorBizImpl;
+import com.xxl.job.core.biz.impl.ShutdownBizImpl;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHander;
 import com.xxl.job.core.log.XxlJobFileAppender;
@@ -122,6 +124,8 @@ public class XxlJobExecutor implements ApplicationContextAware {
     private NetComServerFactory serverFactory = new NetComServerFactory();
     private void initExecutorServer(int port, String ip, String appName, String accessToken) throws Exception {
         NetComServerFactory.putService(ExecutorBiz.class, new ExecutorBizImpl());   // rpc-service, base on jetty
+        //新增优雅停机相关处理类
+        NetComServerFactory.putService(ShutdownBiz.class, new ShutdownBizImpl());
         NetComServerFactory.setAccessToken(accessToken);
         serverFactory.start(port, ip, appName); // jetty + registry
     }
@@ -183,6 +187,10 @@ public class XxlJobExecutor implements ApplicationContextAware {
     public static JobThread loadJobThread(int jobId){
         JobThread jobThread = JobThreadRepository.get(jobId);
         return jobThread;
+    }
+
+    public static ConcurrentHashMap<Integer, JobThread>  getAllJobThread(){
+        return JobThreadRepository;
     }
 
 }

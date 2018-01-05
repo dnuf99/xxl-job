@@ -110,11 +110,13 @@ public class ExecutorRegistryThread extends Thread {
     public void toStop() {
         toStop = true;
         // interrupt and wait
-        registryThread.interrupt();
-        try {
-            registryThread.join();
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
+        if(registryThread != null && registryThread.isAlive()) {
+            registryThread.interrupt();
+            try {
+                registryThread.join();
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 

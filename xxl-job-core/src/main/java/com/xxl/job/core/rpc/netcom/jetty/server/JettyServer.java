@@ -68,7 +68,10 @@ public class JettyServer {
 	public void destroy() {
 
 		// destroy Registry-Server
-		ExecutorRegistryThread.getInstance().toStop();
+		ExecutorRegistryThread registryThread = ExecutorRegistryThread.getInstance();
+		if(registryThread != null && registryThread.isAlive()){
+			registryThread.toStop();
+		}
 
 		// destroy Callback-Server
 		TriggerCallbackThread.getInstance().toStop();
