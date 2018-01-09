@@ -89,87 +89,89 @@ $(function() {
 	    "ordering": false,
 	    //"scrollX": false,
 	    "columns": [
-	                { "data": 'id', "bSortable": false, "visible" : false},
-					{ "data": 'jobGroup', "visible" : false},
-	                { "data": 'jobId', "visible" : false},
 					{
-						"data": 'JobKey',
+						"data": 'jobId',
 						"visible" : true,
+                        "width":'10%',
 						"render": function ( data, type, row ) {
-							var jobKey = row.jobGroup + "_" + row.jobId;
+							var glueTypeTitle = row.glueType;
+							if ('GLUE_GROOVY'==row.glueType) {
+								glueTypeTitle = "GLUE模式(Java)";
+							} else if ('GLUE_SHELL'==row.glueType) {
+								glueTypeTitle = "GLUE模式(Shell)";
+							} else if ('GLUE_PYTHON'==row.glueType) {
+								glueTypeTitle = "GLUE模式(Python)";
+							}else if ('GLUE_NODEJS'==row.glueType) {
+								glueTypeTitle = "GLUE模式(Nodejs)";
+							} else if ('BEAN'==row.glueType) {
+								glueTypeTitle = "BEAN模式：" + row.executorHandler;
+							}
 
-                            var glueTypeTitle = row.glueType;
-                            if ('GLUE_GROOVY'==row.glueType) {
-                                glueTypeTitle = "GLUE模式(Java)";
-                            } else if ('GLUE_SHELL'==row.glueType) {
-                                glueTypeTitle = "GLUE模式(Shell)";
-                            } else if ('GLUE_PYTHON'==row.glueType) {
-                                glueTypeTitle = "GLUE模式(Python)";
-                            }else if ('GLUE_NODEJS'==row.glueType) {
-                            	glueTypeTitle = "GLUE模式(Nodejs)";
-                            } else if ('BEAN'==row.glueType) {
-                                glueTypeTitle = "BEAN模式：" + row.executorHandler;
-                            }
+							var temp = '';
+							temp += '执行器地址：' + (row.executorAddress?row.executorAddress:'');
+							temp += '<br>运行模式：' + glueTypeTitle;
+							temp += '<br>任务参数：' + row.executorParam;
 
-                            var temp = '';
-                            temp += '执行器地址：' + (row.executorAddress?row.executorAddress:'');
-                            temp += '<br>运行模式：' + glueTypeTitle;
-                            temp += '<br>任务参数：' + row.executorParam;
-
-                            return '<a class="logTips" href="javascript:;" >'+ jobKey +'<span style="display:none;">'+ temp +'</span></a>';
+							return '<a class="logTips" href="javascript:;" >'+ row.jobId +'<span style="display:none;">'+ temp +'</span></a>';
 						}
 					},
-					// { "data": 'executorAddress', "visible" : true},
-					// {
-					// 	"data": 'glueType',
-					//  	"visible" : true,
-					// 	"render": function ( data, type, row ) {
-					// 		if ('GLUE_GROOVY'==row.glueType) {
-					// 			return "GLUE模式(Java)";
-					// 		} else if ('GLUE_SHELL'==row.glueType) {
-					// 		 	return "GLUE模式(Shell)";
-					// 		} else if ('GLUE_PYTHON'==row.glueType) {
-					// 			return "GLUE模式(Python)";
-					// 		} else if ('BEAN'==row.glueType) {
-					// 		 	return "BEAN模式：" + row.executorHandler;
-					// 		}
-					// 		return row.executorHandler;
-					// 	 }
-					// },
-					// { "data": 'executorParam', "visible" : true},
+					{ "data": 'jobGroup', "visible" : false},
 					{
 						"data": 'triggerTime',
+                        "width":'16%',
 						"render": function ( data, type, row ) {
 							return data?moment(new Date(data)).format("YYYY-MM-DD HH:mm:ss"):"";
 						}
 					},
 					{
 						"data": 'triggerCode',
+                        "width":'12%',
 						"render": function ( data, type, row ) {
-							return (data==200)?'<span style="color: green">成功</span>':(data==500)?'<span style="color: red">失败</span>':(data==0)?'':data;
+							var html = data;
+							if (data == 200) {
+								html = '<span style="color: green">成功</span>';
+							} else if (data == 500) {
+								html = '<span style="color: red">失败</span>';
+							} else if (data == 0) {
+                                html = '';
+							}
+                            return html;
 						}
-
 					},
 					{
 						"data": 'triggerMsg',
+                        "width":'12%',
 						"render": function ( data, type, row ) {
 							return data?'<a class="logTips" href="javascript:;" >查看<span style="display:none;">'+ data +'</span></a>':"无";
 						}
 					},
 	                { 
 	                	"data": 'handleTime',
+                        "width":'16%',
 	                	"render": function ( data, type, row ) {
 	                		return data?moment(new Date(data)).format("YYYY-MM-DD HH:mm:ss"):"";
 	                	}
 	                },
 	                {
 						"data": 'handleCode',
+                        "width":'12%',
 						"render": function ( data, type, row ) {
-							return (data==200)?'<span style="color: green">成功</span>':(data==500)?'<span style="color: red">失败</span>':(data==0)?'':data;
+                            var html = data;
+                            if (data == 200) {
+                                html = '<span style="color: green">成功</span>';
+                            } else if (data == 500) {
+                                html = '<span style="color: red">失败</span>';
+                            } else if (data == 501) {
+                                html = '<span style="color: red">失败重试</span>';
+                            } else if (data == 0) {
+                                html = '';
+                            }
+                            return html;
 						}
 	                },
 	                { 
 	                	"data": 'handleMsg',
+                        "width":'12%',
 	                	"render": function ( data, type, row ) {
 	                		return data?'<a class="logTips" href="javascript:;" >查看<span style="display:none;">'+ data +'</span></a>':"无";
 	                	}
@@ -177,7 +179,7 @@ $(function() {
 	                {
 						"data": 'handleMsg' ,
 						"bSortable": false,
-						"width": "8%" ,
+                        "width":'10%',
 	                	"render": function ( data, type, row ) {
 	                		// better support expression or string, not function
 	                		return function () {
