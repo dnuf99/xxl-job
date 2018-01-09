@@ -1,20 +1,5 @@
 package com.xxl.job.admin.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.xxl.job.admin.controller.annotation.PermessionLimit;
 import com.xxl.job.admin.controller.interceptor.PermissionInterceptor;
 import com.xxl.job.admin.core.model.RoleInfo;
@@ -25,6 +10,20 @@ import com.xxl.job.admin.dao.UserInfoDao;
 import com.xxl.job.admin.service.UserRoleService;
 import com.xxl.job.admin.service.XxlJobService;
 import com.xxl.job.core.biz.model.ReturnT;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * index controller
@@ -64,8 +63,8 @@ public class IndexController {
 
     @RequestMapping("/triggerChartDate")
 	@ResponseBody
-	public ReturnT<Map<String, Object>> triggerChartDate() {
-        ReturnT<Map<String, Object>> triggerChartDate = xxlJobService.triggerChartDate();
+	public ReturnT<Map<String, Object>> triggerChartDate(Date startDate, Date endDate) {
+        ReturnT<Map<String, Object>> triggerChartDate = xxlJobService.triggerChartDate(startDate, endDate);
         return triggerChartDate;
     }
 	
@@ -146,9 +145,6 @@ public class IndexController {
 	@ResponseBody
 	@PermessionLimit(limit=false)
 	public ReturnT<String> updatePwd(HttpServletRequest request, HttpServletResponse response, String oldPassword, String newPassword) {
-		if(!isEditable(request)) {
-			return new ReturnT<String>(ReturnT.FAIL_CODE, "没有操作权限");
-		}
 		
 		String errorMsg = "修改密码失败！";
 		if (isLogin(request)) {

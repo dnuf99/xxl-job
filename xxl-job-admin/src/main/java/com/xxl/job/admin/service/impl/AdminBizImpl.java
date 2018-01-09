@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger.TriggerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,16 @@ import com.xxl.job.core.biz.AdminBiz;
 import com.xxl.job.core.biz.model.HandleCallbackParam;
 import com.xxl.job.core.biz.model.RegistryParam;
 import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.handler.IJobHandler;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author xuxueli 2017-07-27 21:54:20
@@ -46,7 +56,7 @@ public class AdminBizImpl implements AdminBiz {
         for (HandleCallbackParam handleCallbackParam: callbackParamList) {
             ReturnT<String> callbackResult = callback(handleCallbackParam);
             logger.info(">>>>>>>>> JobApiController.callback {}, handleCallbackParam={}, callbackResult={}",
-                    (callbackResult.getCode()==ReturnT.SUCCESS_CODE?"success":"fail"), handleCallbackParam, callbackResult);
+                    (callbackResult.getCode()==IJobHandler.SUCCESS.getCode()?"success":"fail"), handleCallbackParam, callbackResult);
         }
 
         return ReturnT.SUCCESS;
@@ -60,11 +70,11 @@ public class AdminBizImpl implements AdminBiz {
         }
 
         // trigger success, to trigger child job, and avoid repeat trigger child job
-        String childTriggerMsg = null;
-        if (ReturnT.SUCCESS_CODE==handleCallbackParam.getExecuteResult().getCode() && ReturnT.SUCCESS_CODE!=log.getHandleCode()) {
+        String callbackMsg = null;
+        if (IJobHandler.SUCCESS.getCode() ==handleCallbackParam.getExecuteResult().getCode()) {
             XxlJobInfo xxlJobInfo = xxlJobInfoDao.loadById(log.getJobId());
             if (xxlJobInfo!=null && StringUtils.isNotBlank(xxlJobInfo.getChildJobKey())) {
-                childTriggerMsg = "<hr>";
+                callbackMsg = "<br><br><span style=\"color:#00c0ef;\" > >>>>>>>>>>>触发子任务<<<<<<<<<<< </span><br>";
                 String[] childJobKeys = xxlJobInfo.getChildJobKey().split(",");
                 for (int i = 0; i < childJobKeys.length; i++) {
                 	//判断后续任务是否处于暂停状态，若为暂停状态则不触发
@@ -73,19 +83,25 @@ public class AdminBizImpl implements AdminBiz {
                     	if(isChildJobNomal(jobKeyArr[0], jobKeyArr[1])) {
 	                    	ReturnT<String> triggerChildResult = xxlJobService.triggerJob(Integer.valueOf(jobKeyArr[1]));
 	                        // add msg
-	                        childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务{2}, 后续任务Key: {3}, 后续任务触发备注: {4}",
+                            callbackMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务{2}, 后续任务Key: {3}, 后续任务触发备注: {4}",
 	                                (i+1), childJobKeys.length, (triggerChildResult.getCode()==ReturnT.SUCCESS_CODE?"成功":"失败"), childJobKeys[i], triggerChildResult.getMsg());
                     	}else {
-                    		childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务失败, 后续任务为暂停发起状态, 后续任务Key: {2}",
+                            callbackMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务失败, 后续任务为暂停发起状态, 后续任务Key: {2}",
                                     (i+1), childJobKeys.length, childJobKeys[i]);
                     	}
                     } else {
-                        childTriggerMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务失败, 后续任务Key格式错误, 后续任务Key: {2}",
+                        callbackMsg += MessageFormat.format("<br> {0}/{1} 触发后续任务失败, 后续任务Key格式错误, 后续任务Key: {2}",
                                 (i+1), childJobKeys.length, childJobKeys[i]);
                     }
                 	
                 }
 
+            } else if (IJobHandler.FAIL_RETRY.getCode() == handleCallbackParam.getExecuteResult().getCode()){
+                ReturnT<String> retryTriggerResult = xxlJobService.triggerJob(log.getJobId());
+                callbackMsg = "<br><br><span style=\"color:#F39C12;\" > >>>>>>>>>>>执行失败重试<<<<<<<<<<< </span><br>";
+
+                callbackMsg += MessageFormat.format("触发{0}, 触发备注: {1}",
+                        (retryTriggerResult.getCode()==ReturnT.SUCCESS_CODE?"成功":"失败"), retryTriggerResult.getMsg());
             }
         }
 
@@ -97,8 +113,8 @@ public class AdminBizImpl implements AdminBiz {
         if (handleCallbackParam.getExecuteResult().getMsg() != null) {
             handleMsg.append(handleCallbackParam.getExecuteResult().getMsg());
         }
-        if (childTriggerMsg !=null) {
-            handleMsg.append("<br>后续任务触发备注：").append(childTriggerMsg);
+        if (callbackMsg !=null) {
+            handleMsg.append("<br>后续任务触发备注：").append(callbackMsg);
         }
 
         // success, save log

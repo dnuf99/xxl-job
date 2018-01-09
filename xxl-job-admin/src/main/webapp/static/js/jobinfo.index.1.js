@@ -10,6 +10,7 @@ $(function() {
 	        data : function ( d ) {
 	        	var obj = {};
 	        	obj.jobGroup = $('#jobGroup').val();
+                obj.jobDesc = $('#jobDesc').val();
 	        	obj.executorHandler = $('#executorHandler').val();
 	        	obj.start = d.start;
 	        	obj.length = d.length;
@@ -20,10 +21,16 @@ $(function() {
 	    "ordering": false,
 	    //"scrollX": true,	// X轴滚动条，取消自适应
 	    "columns": [
-	                { "data": 'id', "bSortable": false, "visible" : false},
+	                {
+	                	"data": 'id',
+						"bSortable": false,
+						"visible" : true,
+						"width":'10%'
+					},
 	                { 
 	                	"data": 'jobGroup', 
 	                	"visible" : false,
+						"width":'20%',
 	                	"render": function ( data, type, row ) {
 	            			var groupMenu = $("#jobGroup").find("option");
 	            			for ( var index in $("#jobGroup").find("option")) {

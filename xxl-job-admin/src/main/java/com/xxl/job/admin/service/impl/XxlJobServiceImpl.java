@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.quartz.CronExpression;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -38,6 +38,19 @@ import com.xxl.job.admin.service.XxlJobService;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.glue.GlueTypeEnum;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.quartz.CronExpression;
+import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * core job action for xxl-job
@@ -61,11 +74,11 @@ public class XxlJobServiceImpl implements XxlJobService {
 	private XxlJobMontorDao xxlJobMontorDao;
 	
 	@Override
-	public Map<String, Object> pageList(int start, int length, int jobGroup, String executorHandler, String filterTime) {
+	public Map<String, Object> pageList(int start, int length, int jobGroup, String jobDesc, String executorHandler, String filterTime) {
 
 		// page list
-		List<XxlJobInfo> list = xxlJobInfoDao.pageList(start, length, jobGroup, executorHandler);
-		int list_count = xxlJobInfoDao.pageListCount(start, length, jobGroup, executorHandler);
+		List<XxlJobInfo> list = xxlJobInfoDao.pageList(start, length, jobGroup, jobDesc, executorHandler);
+		int list_count = xxlJobInfoDao.pageListCount(start, length, jobGroup, jobDesc, executorHandler);
 		
 		// fill job info
 		if (list!=null && list.size()>0) {
@@ -86,8 +99,8 @@ public class XxlJobServiceImpl implements XxlJobService {
 	public Map<String, Object> pageMontorList(int start, int length, int jobGroup, String executorHandler, String filterTime) {
 
 		// page list
-		List<XxlJobInfo> list = xxlJobInfoDao.pageList(start, length, jobGroup, executorHandler);
-		int list_count = xxlJobInfoDao.pageListCount(start, length, jobGroup, executorHandler);
+		List<XxlJobInfo> list = xxlJobInfoDao.pageList(start, length, jobGroup, null, executorHandler);
+		int list_count = xxlJobInfoDao.pageListCount(start, length, jobGroup,  null, executorHandler);
 		
 		// fill jobMontor
 		List<XxlJobMontorInfo> montorList = new ArrayList<XxlJobMontorInfo>();
@@ -502,18 +515,15 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	@Override
-	public ReturnT<Map<String, Object>> triggerChartDate() {
-		Date from = DateUtils.addDays(new Date(), -30);
-		Date to = new Date();
-
+	public ReturnT<Map<String, Object>> triggerChartDate(Date startDate, Date endDate) {
 		List<String> triggerDayList = new ArrayList<String>();
 		List<Integer> triggerDayCountSucList = new ArrayList<Integer>();
 		List<Integer> triggerDayCountFailList = new ArrayList<Integer>();
 		int triggerCountSucTotal = 0;
 		int triggerCountFailTotal = 0;
 
-		List<Map<String, Object>> triggerCountMapAll = xxlJobLogDao.triggerCountByDay(from, to, -1);
-		List<Map<String, Object>> triggerCountMapSuc = xxlJobLogDao.triggerCountByDay(from, to, ReturnT.SUCCESS_CODE);
+		List<Map<String, Object>> triggerCountMapAll = xxlJobLogDao.triggerCountByDay(startDate, endDate, -1);
+		List<Map<String, Object>> triggerCountMapSuc = xxlJobLogDao.triggerCountByDay(startDate, endDate, ReturnT.SUCCESS_CODE);
 		if (CollectionUtils.isNotEmpty(triggerCountMapAll)) {
 			for (Map<String, Object> item: triggerCountMapAll) {
 				String day = String.valueOf(item.get("triggerDay"));
