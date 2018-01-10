@@ -36,12 +36,14 @@ public class ShutdownBizImpl implements ShutdownBiz {
     public ReturnT<String> shutdownAndWaitingExcutor(String token) {
         //取消心跳注册
         // destroy Registry-Server
+        logger.info(">>>> start to unregistry");
         ExecutorRegistryThread registryThread = ExecutorRegistryThread.getInstance();
         if(registryThread != null && registryThread.isAlive()){
             registryThread.toStop();
         }
-
+        logger.info("<<<< unregistry operator suceess");
         //等待执行线程完成
+        logger.info(">>>> wait for all job finished ");
         while (true) {
             boolean hasFinished = true;
             ConcurrentHashMap<Integer, JobThread> allJobThread = XxlJobExecutor.getAllJobThread();
@@ -65,7 +67,7 @@ public class ShutdownBizImpl implements ShutdownBiz {
                 }
             }
         }
-
+        logger.info("<<<< all job has been finished ");
         return ReturnT.SUCCESS;
     }
 
