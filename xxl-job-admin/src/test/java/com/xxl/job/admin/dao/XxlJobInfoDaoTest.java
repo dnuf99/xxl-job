@@ -1,4 +1,4 @@
-package com.xxl.job.dao.impl;
+package com.xxl.job.admin.dao;
 
 import com.xxl.job.admin.core.model.XxlJobInfo;
 import com.xxl.job.admin.dao.XxlJobInfoDao;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath*:test-applicationContext.xml")                     
-public class XxlJobInfoTest {
+public class XxlJobInfoDaoTest {
 	
 	@Resource
 	private XxlJobInfoDao xxlJobInfoDao;

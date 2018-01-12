@@ -33,12 +33,13 @@ public class ShutdownBizImpl implements ShutdownBiz {
 
 
     @Override
-    public ReturnT<String> shutdownAndWaitingExcutor(String token) {
+    public ReturnT<String> shutdownAndWaitingExcutor() {
         //取消心跳注册
         // destroy Registry-Server
-        logger.info(">>>> start to unregistry");
+        logger.info(">>>> start to shutdownAndWaitingExcutor");
         ExecutorRegistryThread registryThread = ExecutorRegistryThread.getInstance();
-        if(registryThread != null && registryThread.isAlive()){
+        if(registryThread != null){
+            logger.info(">>>> start to unregistry");
             registryThread.toStop();
         }
         logger.info("<<<< unregistry operator suceess");
@@ -68,6 +69,7 @@ public class ShutdownBizImpl implements ShutdownBiz {
             }
         }
         logger.info("<<<< all job has been finished ");
+        logger.info("<<<< shutdownAndWaitingExcutor  has finined");
         return ReturnT.SUCCESS;
     }
 
