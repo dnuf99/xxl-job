@@ -1,5 +1,7 @@
 package com.xxl.job.core.rpc.netcom.jetty.server;
 
+import com.alibaba.fastjson.JSON;
+import com.xxl.job.core.enums.ProtocolEnum;
 import com.xxl.job.core.rpc.codec.RpcRequest;
 import com.xxl.job.core.rpc.codec.RpcResponse;
 import com.xxl.job.core.rpc.netcom.NetComServerFactory;
@@ -25,14 +27,21 @@ public class JettyServerHandler extends AbstractHandler {
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		
+
 		// invoke
         RpcResponse rpcResponse = doInvoke(request);
-
+		byte[] responseBytes = null;
         // serialize response
-        byte[] responseBytes = HessianSerializer.serialize(rpcResponse);
+		if(isJsonProtocol(request)){
+			String reponseJson = JSON.toJSONString(rpcResponse);
+			responseBytes = reponseJson.getBytes("UTF-8");
+			response.setContentType("application/json; charset=UTF-8");
+		}else {
+			responseBytes = HessianSerializer.serialize(rpcResponse);
+			response.setContentType("text/html;charset=utf-8");
+		}
 		
-		response.setContentType("text/html;charset=utf-8");
+
 		response.setStatus(HttpServletResponse.SC_OK);
 		baseRequest.setHandled(true);
 		
@@ -42,17 +51,33 @@ public class JettyServerHandler extends AbstractHandler {
 		
 	}
 
+	private boolean isJsonProtocol(HttpServletRequest request) {
+		ProtocolEnum protocolEnum = ProtocolEnum.getByContentType(request.getContentType());
+		return ProtocolEnum.JOSN == protocolEnum;
+	}
+
 	private RpcResponse doInvoke(HttpServletRequest request) {
 		try {
 			// deserialize request
-			byte[] requestBytes = HttpClientUtil.readBytes(request);
-			if (requestBytes == null || requestBytes.length==0) {
-				RpcResponse rpcResponse = new RpcResponse();
-				rpcResponse.setError("RpcRequest byte[] is null");
-				return rpcResponse;
-			}
-			RpcRequest rpcRequest = (RpcRequest) HessianSerializer.deserialize(requestBytes, RpcRequest.class);
+			RpcRequest rpcRequest = new RpcRequest();
+			if(isJsonProtocol(request)){
+				String requestJosn = HttpClientUtil.readJsonString(request);
+				if (requestJosn == null || requestJosn.length()==0) {
+					RpcResponse rpcResponse = new RpcResponse();
+					rpcResponse.setError("RpcRequest requestJosn is null");
+					return rpcResponse;
+				}
+				rpcRequest = JSON.parseObject(requestJosn, RpcRequest.class);
 
+			}else{
+				byte[] requestBytes = HttpClientUtil.readBytes(request);
+				if (requestBytes == null || requestBytes.length==0) {
+					RpcResponse rpcResponse = new RpcResponse();
+					rpcResponse.setError("RpcRequest byte[] is null");
+					return rpcResponse;
+				}
+				rpcRequest = (RpcRequest) HessianSerializer.deserialize(requestBytes, RpcRequest.class);
+			}
 			// invoke
 			RpcResponse rpcResponse = NetComServerFactory.invokeService(rpcRequest, null);
 			return rpcResponse;

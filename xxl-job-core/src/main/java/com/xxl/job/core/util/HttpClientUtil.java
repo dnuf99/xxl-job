@@ -1,5 +1,8 @@
 package com.xxl.job.core.util;
 
+import com.xxl.job.core.enums.ProtocolEnum;
+import com.xxl.job.core.rpc.codec.ResponseProtocolBytes;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -13,8 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 /**
  * httpclient util
@@ -26,7 +34,10 @@ public class HttpClientUtil {
 	/**
 	 * post request
 	 */
-	public static byte[] postRequest(String reqURL, byte[] date) throws Exception {
+	public static byte[] postRequest(String reqURL, byte[] date, ProtocolEnum protocol) throws Exception {
+
+		ResponseProtocolBytes result = new ResponseProtocolBytes();
+
 		byte[] responseBytes = null;
 		
 		HttpPost httpPost = new HttpPost(reqURL);
@@ -54,10 +65,11 @@ public class HttpClientUtil {
 
 			// data
 			if (date != null) {
-				httpPost.setEntity(new ByteArrayEntity(date, ContentType.DEFAULT_BINARY));
+				httpPost.setEntity(new ByteArrayEntity(date, protocol.getContentType()));
 			}
 			// do post
 			HttpResponse response = httpClient.execute(httpPost);
+
 			HttpEntity entity = response.getEntity();
 			if (null != entity) {
 				responseBytes = EntityUtils.toByteArray(entity);
@@ -76,7 +88,7 @@ public class HttpClientUtil {
 		}
 		return responseBytes;
 	}
-	
+
 	/**
 	 * read bytes from http request
 	 * @param request
@@ -106,6 +118,28 @@ public class HttpClientUtil {
 			}
 		}
 		return new byte[] {};
+	}
+
+	/**
+	 * read bytes from http request
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 */
+	public static final String readJsonString(HttpServletRequest request) throws IOException {
+		request.setCharacterEncoding("UTF-8");
+
+		InputStream is = request.getInputStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		String line = null;
+		StringBuffer content = new StringBuffer();
+		while ((line = br.readLine()) != null) {
+			content.append(line);
+		}
+		String reqStr = content.toString().trim();
+
+		logger.info(reqStr);
+		return reqStr;
 	}
 
 }
