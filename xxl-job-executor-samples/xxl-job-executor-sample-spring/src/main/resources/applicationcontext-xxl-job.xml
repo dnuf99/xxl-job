@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 
-    <!-- ********************************* 基础配置 ********************************* -->
+	<!-- ********************************* 基础配置 ********************************* -->
 
 	<!-- 配置01、JobHandler 扫描路径 -->
 	<context:component-scan base-package="com.xxl.job.executor.service.jobhandler" />
@@ -18,15 +18,15 @@
 		<!-- 执行器IP[选填]，为空则自动获取 -->
 		<property name="ip" value="" />
 		<!-- 执行器端口号[必须] -->
-		<property name="port" value="${xxl.job.executor.port}" />
+		<property name="port" value="9999" />
 		<!-- 执行器AppName[选填]，为空则关闭自动注册 -->
-        <property name="appName" value="${xxl.job.executor.appname}" />
-        <!-- 执行器注册中心地址[选填]，为空则关闭自动注册 -->
-		<property name="adminAddresses" value="${xxl.job.admin.addresses}" />
+		<property name="appName" value="TEST" />
+		<!-- 执行器注册中心地址[选填]，为空则关闭自动注册 -->
+		<property name="adminAddresses" value="10.50.115.71:7001/job-admin" />
 		<!-- 执行器日志路径[必填] -->
-		<property name="logPath" value="${xxl.job.executor.logpath}" />
+		<property name="logPath" value="/opt/logs/xxl-test" />
 		<!-- 访问令牌，非空则进行匹配校验[选填] -->
-		<property name="accessToken" value="${xxl.job.accessToken}" />
+		<property name="accessToken" value="htf-token" />
 	</bean>
 
 

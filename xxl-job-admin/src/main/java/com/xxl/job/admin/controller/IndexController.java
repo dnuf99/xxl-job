@@ -12,6 +12,7 @@ import com.xxl.job.admin.service.XxlJobService;
 import com.xxl.job.core.biz.model.ReturnT;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +65,16 @@ public class IndexController {
 
     @RequestMapping("/triggerChartDate")
 	@ResponseBody
-	public ReturnT<Map<String, Object>> triggerChartDate(Date startDate, Date endDate) {
-        ReturnT<Map<String, Object>> triggerChartDate = xxlJobService.triggerChartDate(startDate, endDate);
+	public ReturnT<Map<String, Object>> triggerChartDate(HttpServletRequest request, String startDate, String endDate) {
+		Date dStartDate = null;
+		Date dEndDate = null;
+		try {
+			dStartDate = DateUtils.parseDate(startDate, "YYYY-MM-DD hh:mm:ss");
+			dEndDate = DateUtils.parseDate(endDate, "YYYY-MM-DD hh:mm:ss");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		ReturnT<Map<String, Object>> triggerChartDate = xxlJobService.triggerChartDate(dStartDate, dEndDate);
         return triggerChartDate;
     }
 	
