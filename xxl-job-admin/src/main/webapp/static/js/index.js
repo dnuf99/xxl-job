@@ -55,10 +55,14 @@ $(function () {
             type : 'POST',
             url : base_url + '/triggerChartDate',
             data : {
-                'startDate':startDate.format('YYYY-MM-DD HH:mm:ss'),
-                'endDate':endDate.format('YYYY-MM-DD HH:mm:ss')
+
+                        'startDate':
+                        startDate.format('YYYY-MM-DD HH:mm:ss'),
+                        'endDate':
+                        endDate.format('YYYY-MM-DD HH:mm:ss')
+
             },
-            dataType : "json",
+           // dataType : "json",
             success : function(data){
                 if (data.code == 200) {
                     lineChartInit(data)

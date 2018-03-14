@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <group>
-        <property name="xxl.cts.app.name" description="应用名称" defaultValue="XXL_CTS" />
-        <property name="xxl.cts.dubbo.registry.address" description="注册中心地址" defaultValue="zookeeper://10.50.115.41:2181" /> 
-        <property name="xxl.cts.dubbo.owner" description="应用的所有者、维护者" defaultValue="wangjianyue" />
-         
+        <property name="xxl.app.name" description="应用名称" defaultValue="HTF_XXL_JOB" />
+        <property name="xxl.dubbo.registry.address" description="注册中心地址" defaultValue="zookeeper://10.50.115.41:2181" />
+        <property name="xxl.dubbo.owner" description="应用的所有者、维护者" defaultValue="wangjianyue" />
+
         <!-- Message -->
         <property name="xxl.messageinterface.dubbo.interface.version" description="CRM短信微信接口版本" defaultValue="ms1.0" />
         <property name="xxl.messageinterface.dubbo.timeout" description="CRM短信微信接口网络超时时间" defaultValue="50000" />
 
+
         <property name="xxl.job.accessToken" description="token" defaultValue="htf-token" />
-        
+
         <property name="xxl.datasource.ec.jndiName" description="token" defaultValue="java:comp/env/xxl" />
-        
-        
-        
-     </group>
+
+
+
+    </group>
     <script>
         <generate template="WEB-INF/classes/spring/applicationcontext-dubbo-consumer.xml" />
         <generate template="WEB-INF/classes/spring/applicationcontext-xxl-job-admin.xml" />
